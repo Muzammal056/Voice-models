@@ -39,3 +39,9 @@ secrets*.json
 .idea/
 .DS_Store
 Thumbs.db
+
+# Private standalone-server configuration
+deploy/vps/app.env
+deploy/vps/data/
+deploy/vps/caddy-data/
+deploy/vps/caddy-config/

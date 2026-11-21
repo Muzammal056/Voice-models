@@ -1,0 +1,9 @@
+__pycache__
+*.pyc
+*.json
+*.env
+.env*
+data/
+caddy-data/
+caddy-config/
+LOGIN-DETAILS.txt

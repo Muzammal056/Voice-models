@@ -48,3 +48,7 @@ Open Voice Studio using `Start App.bat`, choose the Voice workspace and Preset v
 **Pack clarity finish** applies the pack's high-pass filter, presence EQ and -16 LUFS loudness normalization. Turn it off to keep the native sound. Kokoro generates at 24 kHz; the finish exports at 44.1 kHz, which does not add new recorded detail. Both the MP3 and lossless WAV are retained; **Raw WAV** downloads the unprocessed synthesis. Generated voices enter the same recent-voice library and enhancement workflow as the existing models.
 
 The existing Kokoro installation on this PC is used in a separate CPU process. `kokoro-runtime.json` records the Python interpreter and cache directory; `KOKORO_PYTHON` can override the interpreter. If moved to another PC, run `Setup Kokoro.bat`. It reuses a working installation or creates `.kokoro-runtime` without changing the main app's Torch installation. The core model and any uncached voice weights require internet on first use; cached voices run locally afterward. A newly selected voice may take longer on its first generation.
+
+## Standalone small-VPS profile
+
+The Docker application in [deploy/vps](deploy/vps/DEPLOYMENT.md) runs Kokoro voices and lightweight audio finishing directly on a Linux server. It excludes Piper, voice cloning, music, SFX, neural enhancement models and video creation. It has private login, HTTPS-proxy support and queued synthesis. The desktop app described above remains a separate profile.
