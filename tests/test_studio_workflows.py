@@ -29,10 +29,16 @@ class VoiceHistoryTests(unittest.TestCase):
 
 class StudioRoutesTests(unittest.TestCase):
  def setUp(self):self.client=app.app.test_client()
- def test_story_removed_and_keyword_video_planning(self):
-  self.assertEqual(self.client.post('/api/story',json={'text':'test'}).status_code,404)
-  response=self.client.post('/api/footage/plan',json={'text':'A river flows past a mountain village.'});self.assertEqual(response.status_code,200);self.assertEqual(response.get_json()['source'],'keywords')
-  self.assertFalse(hasattr(app,'get_story'))
+ def test_video_creation_removed_and_audio_cues_preserved(self):
+  for path,method in (('/api/footage','post'),('/api/footage/plan','post'),('/api/footage/keys','get'),('/api/footage/keys','post'),('/api/story','post')):
+   self.assertEqual(getattr(self.client,method)(path).status_code,404,path)
+  data=self.client.post('/api/cues',json={'text':'Rain and thunder in a quiet forest.'}).get_json()
+  self.assertEqual(set(data),{'music','sfx'});self.assertTrue(data['sfx']['words'])
+  html=self.client.get('/').get_data(as_text=True)
+  for element in ('mode-video','layout-video','video-form','voice-build-video','goto-video','pixabay-key','pexels-key'):
+   self.assertNotIn('id="'+element+'"',html)
+  for element in ('layout-voice','layout-enhance','layout-music','layout-sfx','layout-transcribe','layout-silence','kokoro-polish'):
+   self.assertIn('id="'+element+'"',html)
  def test_empty_model_selection_is_not_silently_changed(self):
   response=self.client.post('/api/enhance',json={'path':__file__,'providers':[]});self.assertEqual(response.status_code,400)
  def test_new_file_forwards_exactly_two_checked_models(self):

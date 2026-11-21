@@ -1,4 +1,4 @@
-"""Local browser UI for video transcripts and voiceovers."""
+"""Local browser UI for voice generation, enhancement and transcription."""
 
 from __future__ import annotations
 
@@ -15,8 +15,7 @@ from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 
 from captions import captions_from_script, rechunk_transcript, save_srt
 from clone import CLONE_LANGUAGES, VoiceCloner, get_cloned_voice, list_cloned_voices, save_cloned_voice
-from footage import assemble_video, keys_status, save_keys
-from cues import extract_music_cues, extract_sfx_cues, analyze_script, extract_footage_queries
+from cues import extract_music_cues, extract_sfx_cues, analyze_script
 from music import DEFAULT_SECONDS, MUSIC_STYLES, MusicGenerator, clamp_seconds, prompt_from_text
 from sfx import DEFAULT_SECONDS as SFX_DEFAULT_SECONDS
 from sfx import SFX_STYLES, SfxGenerator, clamp_sfx_seconds, sfx_prompt_from_text
@@ -632,126 +631,6 @@ def sfx():
     except Exception as exc:
         app.logger.error("Sound effect generation failed:\n%s", traceback.format_exc())
         return api_error(str(exc) or "Sound effect generation failed", 500)
-
-
-@app.get("/api/footage/keys")
-def footage_keys_get():
-    return jsonify(keys_status())
-
-
-@app.post("/api/footage/keys")
-def footage_keys_save():
-    payload = request.get_json(silent=True) or {}
-    pixabay = payload.get("pixabay")
-    pexels = payload.get("pexels")
-    if pixabay is None and pexels is None:
-        return api_error("Send a pixabay and/or pexels API key.")
-    save_keys(
-        pixabay=None if pixabay is None else str(pixabay),
-        pexels=None if pexels is None else str(pexels),
-    )
-    return jsonify(keys_status())
-
-
-def _shot_budget(text: str, requested=None) -> int:
-    words = max(1, len((text or "").split()))
-    auto = min(24, max(10, int(round(words / 10) + 8)))
-    if requested in (None, ""):
-        return auto
-    try:
-        return max(8, min(28, int(requested)))
-    except (TypeError, ValueError):
-        return auto
-
-
-@app.post("/api/footage/plan")
-def footage_plan():
-    payload = request.get_json(silent=True) or {}
-    text = str(payload.get("text") or "").strip()
-    if not text:
-        return api_error("Paste the narration to plan matching shots.")
-    shots = _shot_budget(text, payload.get("shots"))
-    fallback = extract_footage_queries(text, limit=shots)
-    queries = list(fallback.get("queries") or [])
-    tone, warning, source, shot_rows = "", "", "keywords", []
-    sfx = extract_sfx_cues(text)
-    return jsonify(
-        {
-            "tone": tone,
-            "queries": queries,
-            "shots": shot_rows,
-            "source": source,
-            "warning": warning,
-            "sfx": sfx.get("words") or [],
-        }
-    )
-
-
-@app.post("/api/footage")
-def footage():
-    try:
-        payload = request.get_json(silent=True) or {}
-        text = str(payload.get("text") or "").strip()
-        voice_raw = str(payload.get("voice_path") or "").strip().strip('"')
-        aspect = str(payload.get("aspect") or "vertical").strip().lower()
-        if aspect not in {"vertical", "wide"}:
-            aspect = "vertical"
-        if not voice_raw:
-            return api_error("Generate a voiceover first, then build the video.")
-        voice_path = Path(voice_raw)
-        if not voice_path.exists():
-            return api_error("That voiceover file was not found.")
-        raw_queries = payload.get("queries")
-        planned_queries = None
-        if isinstance(raw_queries, list):
-            planned_queries = [str(item) for item in raw_queries if str(item).strip()]
-        planned_tone = str(payload.get("tone") or "").strip()
-        raw_shots = payload.get("shots")
-        planned_shots = raw_shots if isinstance(raw_shots, list) else None
-
-        result = assemble_video(
-            text,
-            voice_path,
-            aspect=aspect,
-            out_dir=OUTPUT_DIR,
-            planner=None,
-            planned_queries=planned_queries,
-            planned_tone=planned_tone,
-            planned_shots=planned_shots,
-        )
-        path = result["path"]
-        credits_path = result["credits_path"]
-        return jsonify(
-            {
-                "name": result["name"],
-                "path": str(path),
-                "url": f"/outputs/{path.name}",
-                "duration": float(result["duration"]),
-                "queries": result["queries"],
-                "tone": result.get("tone") or "",
-                "planner": result.get("planner") or "",
-                "clips": [
-                    {
-                        "source": item.get("source"),
-                        "query": item.get("query"),
-                        "user": item.get("user"),
-                        "page": item.get("page"),
-                        "duration": item.get("duration"),
-                        "beat": item.get("beat"),
-                    }
-                    for item in (result.get("clips") or [])
-                ],
-                "credits": result["credits"],
-                "credits_url": f"/outputs/{credits_path.name}",
-                "aspect": result["aspect"],
-                "clip_count": int(result.get("clip_count") or 0),
-            }
-        )
-    except ValueError as exc:
-        return api_error(str(exc), 400)
-    except Exception as exc:
-        app.logger.error("Video build failed:\n%s", traceback.format_exc())
-        return api_error(str(exc) or "Video build failed", 500)
 
 
 @app.post("/api/cues")

@@ -1,17 +1,17 @@
 VOICE STUDIO
 
 VOICE
-Write your narration, choose a preset or cloned voice, and Generate voiceover. Your original MP3, lossless WAV and captions are saved. Recent voiceovers appear in the library and survive a page refresh. Select a saved voice to play/download it. Enhance this voice opens the enhancement workspace with that source. Use in a video uses the selected voice and its narration.
+Write your narration, choose a preset or cloned voice, and Generate voiceover. Your original MP3, lossless WAV and captions are saved. Recent voiceovers appear in the library and survive a page refresh. Select a saved voice to play/download it. Enhance this voice opens the enhancement workspace with that source.
 
 ENHANCE
 1. Choose Last generated voice, Saved voiceover, or Upload a new file. You can browse/drop an audio or video file, or open the local-path option. The selected filename and preview appear below the source controls.
 2. Check any combination of DeepFilterNet, Resemble Enhance, ClearerVoice and bandwidth extension. Changing checkboxes keeps your selected file. Select cleanup models checks the three cleanup enhancers. Clear removes all selections.
 3. Choose strength and loudness settings, then Enhance audio. Each checked model processes the same original source and creates a separate version. CPU work is queued one model at a time. Large uncached models download on first use.
-4. Compare the original and enhanced players. Use this voice selects a result for downloads, music mixing and video. MP3 and WAV links remain available per result. Cancel stops remaining work while retaining originals and completed results.
+4. Compare the original and enhanced players. Use this voice selects a result for downloads and music mixing. MP3 and WAV links remain available per result. Cancel stops remaining work while retaining originals and completed results.
 
 New voiceovers are enhanced automatically only if you enable Enhance new voiceovers automatically. Your selected voice, finished comparisons and in-progress enhancement session can be restored after refresh. If the app itself is restarted, existing result files remain in outputs.
 
 STORY REMOVAL
-The Story tab, rewrite API and Qwen calls were removed. Stock-video planning now uses script keywords. The old Story source and Qwen-specific cache were archived under the studio-redesign backup; existing music-model caches were kept.
+The Story tab, rewrite API and Qwen calls were removed. Video assembly, stock-footage search and footage API-key controls were removed. The old Story source and Qwen-specific cache were archived under the studio-redesign backup; existing music-model caches were kept.
 
 Processing remains local. Model libraries use the separate .enhancers-runtime environment. Setup Voice Enhancers.bat repairs that runtime. Source recordings are kept. Enhancement can alter timbre; compare before using a result. It does not reliably repair wrong pronunciation or pacing.

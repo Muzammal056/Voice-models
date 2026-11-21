@@ -1,6 +1,6 @@
-# Local video → transcript
+# Voice Studio
 
-Uses [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) on this machine. That repo is the inference library (CTranslate2 Whisper). This folder is a thin wrapper so you can drop in a video and get `.txt` / `.srt`.
+Uses [SYSTRAN/faster-whisper](https://github.com/SYSTRAN/faster-whisper) on this machine. That repo is the inference library (CTranslate2 Whisper). The app includes local voice generation, enhancement, music, sound effects, transcription and silence removal.
 
 PyAV (bundled with faster-whisper) decodes audio from video, so you do **not** need a system FFmpeg install. This PC has no NVIDIA GPU, so the default is CPU + `int8`.
 
@@ -30,13 +30,13 @@ The first run downloads the Whisper weights into `models/`. After that it works 
 
 ## Voice enhancement
 
-The Voice tab now offers DeepFilterNet 3, Resemble Enhance, ClearerVoice enhancement, and ClearerVoice bandwidth extension. You can enhance generated or existing audio, compare the three enhancers, and choose a result for the video. Originals and lossless outputs are kept. See **Voice Enhancers - Help.txt** in this folder.
+The Voice tab now offers DeepFilterNet 3, Resemble Enhance, ClearerVoice enhancement, and ClearerVoice bandwidth extension. You can enhance generated or existing audio, compare the three enhancers, and choose a result for download or audio mixing. Originals and lossless outputs are kept. See **Voice Enhancers - Help.txt** in this folder.
 
 These optional models use a separate Windows runtime installed by **Setup Voice Enhancers.bat**. The existing app environment is unchanged. Large pretrained checkpoints download on first use and are cached in `models/enhancers`. Processing runs locally in a background worker.
 
 ## Voice Studio interface
 
-Voice generation and enhancement now have separate workspaces. The voice library restores recent original narration after a reload. Enhance accepts the last generated voice, a saved voiceover, or a new file with any checked combination of enhancers. Results can be selected for the video. Story/Qwen rewriting was removed; stock-footage planning uses keywords. See `Voice Enhancers - Help.txt`.
+Voice generation and enhancement now have separate workspaces. The voice library restores recent original narration after a reload. Enhance accepts the last generated voice, a saved voiceover, or a new file with any checked combination of enhancers. Results can be selected for downloads or audio mixing. Video assembly, stock-footage searches and API-key controls have been removed. Story/Qwen rewriting is also removed. See `Voice Enhancers - Help.txt`.
 
 Regression checks: `.venv\Scripts\python.exe -m unittest discover -s tests -v`. The browser workflow was also verified with a real new-file upload through DeepFilterNet and ClearerVoice, including restoration of the selected result after refresh.
 

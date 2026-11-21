@@ -37,7 +37,6 @@
     for (const id of ['enhance-select-cleanup','enhance-clear-models','enhance-clear-file']) $(id).disabled=busy;
     $('speak').disabled=busy||voiceGenerating;
     $('voice-open-enhance').disabled=!lastVoice;
-    $('voice-build-video').disabled=!lastVoice;
   }
   function updateSource() {
     const mode=sourceMode(),source=selectedSource();
@@ -119,11 +118,11 @@
     if(!$('enhancement-results').querySelector('.result-card')&&(job.original_url||job.results?.length||job.errors?.length))$('enhancement-results').replaceChildren();
     if(job.original_url&&!cards.has('original')){
       if(!run.base)run.base={path:job.original_path,url:job.original_url,name:run.sourceName,lossless_path:job.original_path,duration:job.results[0]?.duration||0,sample_rate:48000,srt:'',text:''};
-      const base=run.base;const card=createResult('original','Original audio',run.sourceName,job.original_url,base.path);const use=document.createElement('button');use.className='secondary result-use';use.type='button';use.textContent='Use original';use.addEventListener('click',()=>{setActive(base);message('Original selected for downloads and video.');});card.append(use);
+      const base=run.base;const card=createResult('original','Original audio',run.sourceName,job.original_url,base.path);const use=document.createElement('button');use.className='secondary result-use';use.type='button';use.textContent='Use original';use.addEventListener('click',()=>{setActive(base);message('Original selected for downloads and audio mixing.');});card.append(use);
     }
     if(run.base&&!run.base.duration&&job.results?.[0])run.base.duration=job.results[0].duration;
     for(const item of job.results||[]){if(cards.has(item.provider))continue;const base={...run.base};const card=createResult(item.provider,item.label,`${duration(item.duration)} · 48 kHz · Enhanced`,item.url,item.path);
-      const use=document.createElement('button');use.type='button';use.className='secondary result-use';use.textContent='Use this voice';use.addEventListener('click',()=>{setActive({...base,...item,lossless_path:item.wav_path,label:item.label});message(`${item.label} selected for downloads and video.`);});card.append(use);
+      const use=document.createElement('button');use.type='button';use.className='secondary result-use';use.textContent='Use this voice';use.addEventListener('click',()=>{setActive({...base,...item,lossless_path:item.wav_path,label:item.label});message(`${item.label} selected for downloads and audio mixing.`);});card.append(use);
       const links=document.createElement('div');links.className='result-downloads';for(const [label,url] of [['Download MP3',item.url],['Download WAV',item.wav_url]]){const link=document.createElement('a');link.textContent=label;link.href=url;link.download='';links.append(link);}card.append(links);
     }
     for(const failure of job.errors||[]){const key='error-'+failure.provider;if(cards.has(key))continue;const card=document.createElement('article');card.className='result-card result-error';const title=document.createElement('strong');title.textContent=labels[failure.provider]||failure.provider;const detail=document.createElement('p');detail.textContent=failure.error;card.append(title,detail);cards.set(key,card);$('enhancement-results').append(card);}
@@ -168,7 +167,7 @@
   $('enhance-cancel').addEventListener('click',async()=>{if(!run?.job)return;try{const response=await fetch('/api/enhance/'+run.job+'/cancel',{method:'POST'});if(!response.ok)throw Error('Could not cancel this task.');message('Stopping enhancement…');}catch(error){message(error.message,true);}});
   for(const id of ['enhance-refresh','voice-library-refresh'])$(id).addEventListener('click',()=>loadLibrary());
   $('download-voice-raw')?.addEventListener('click',()=>{if(!lastVoice?.raw_url)return;const link=document.createElement('a');link.href=lastVoice.raw_url;link.download=lastVoice.name.replace(/\.[^.]+$/,'-raw.wav');link.click();});
-  $('voice-open-enhance').addEventListener('click',openEnhance);$('voice-build-video').addEventListener('click',()=>{if(lastVoice?.text){fillVideoFrom(lastVoice.text);showMode('video');}else $('goto-video').click();});
+  $('voice-open-enhance').addEventListener('click',openEnhance);
   window.addEventListener('studio:mode',event=>{if(['voice','enhance'].includes(event.detail))loadLibrary();});
   window.voiceEnhancement={generationBusy(value){voiceGenerating=!!value;updateControls();},generated(payload){latest=payload;setActive(payload,{render:false});loadLibrary();if($('enhance-auto').checked){chooseMode('latest');setTimeout(startEnhancement,0);}}};
   const settings=read(keys.settings);if(settings){if(Array.isArray(settings.providers))modelInputs.forEach(input=>{input.checked=settings.providers.includes(input.value);});$('enhance-strength').value=settings.strength||75;$('enhance-normalize').checked=settings.normalize!==false;$('enhance-auto').checked=!!settings.auto;}

@@ -350,8 +350,8 @@
 </head>
 <body>
   <div class="app">
-    <header><div class="studio-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div><strong>Voice Studio</strong><small>LOCAL PRODUCTION WORKSPACE</small></div></div><nav class="modes" aria-label="Workspace"><button type="button" class="mode on" id="mode-voice">Voice</button><button type="button" class="mode" id="mode-enhance">Enhance</button><button type="button" class="mode" id="mode-transcribe">Transcribe</button><button type="button" class="mode" id="mode-music">Music</button><button type="button" class="mode" id="mode-sfx">Sound FX</button><button type="button" class="mode" id="mode-video">Video</button><button type="button" class="mode" id="mode-silence">Silence</button></nav><div class="session-chip"><span class="dot"></span>Local workspace</div></header>
-    <div class="workspace-title"><div><span class="eyebrow">A LITTLE MORE LIFE IN EVERY WORD</span><h1 id="heading">Voiceover studio</h1><p id="subhead">Create narration, refine your sound, and bring it into your next video.</p></div><span class="pill" id="badge">CPU · Piper</span></div>
+    <header><div class="studio-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div><strong>Voice Studio</strong><small>LOCAL PRODUCTION WORKSPACE</small></div></div><nav class="modes" aria-label="Workspace"><button type="button" class="mode on" id="mode-voice">Voice</button><button type="button" class="mode" id="mode-enhance">Enhance</button><button type="button" class="mode" id="mode-transcribe">Transcribe</button><button type="button" class="mode" id="mode-music">Music</button><button type="button" class="mode" id="mode-sfx">Sound FX</button><button type="button" class="mode" id="mode-silence">Silence</button></nav><div class="session-chip"><span class="dot"></span>Local workspace</div></header>
+    <div class="workspace-title"><div><span class="eyebrow">A LITTLE MORE LIFE IN EVERY WORD</span><h1 id="heading">Voiceover studio</h1><p id="subhead">Create narration, refine your sound, and download your finished audio.</p></div><span class="pill" id="badge">CPU · Piper</span></div>
     <div class="layout hidden" id="layout-transcribe">
       <aside>
         <form id="form">
@@ -410,7 +410,7 @@
             <label for="script">Script</label>
             <span class="script-count" id="script-count">0 words · 0 characters</span>
           </div>
-          <textarea id="script" placeholder="Write the narration for your video…"></textarea>
+          <textarea id="script" placeholder="Write your narration…"></textarea>
           <button class="secondary" id="use-transcript" type="button" disabled>Use last transcript</button>
           <label>Voice source</label>
           <div class="modes" style="width:100%;margin-top:6px;">
@@ -454,7 +454,7 @@
             </span>
           </label>
           <button class="run" id="speak" type="submit">Generate voiceover</button>
-          <div class="script-shortcuts"><button class="secondary" id="goto-music" type="button">Music</button><button class="secondary" id="goto-sfx" type="button">Sound effects</button><button class="secondary" id="goto-video" type="button">Build a video</button></div>
+          <div class="script-shortcuts"><button class="secondary" id="goto-music" type="button">Music</button><button class="secondary" id="goto-sfx" type="button">Sound effects</button></div>
           <div class="status" id="voice-status">First use of a voice downloads the model, then it stays on this PC.</div>
         </form>
       </aside>
@@ -463,10 +463,10 @@
           <div class="heading-row"><div><span class="eyebrow">YOUR CURRENT TAKE</span><h2>Voiceover preview</h2></div><span id="voice-active-label" class="pill">No voice selected</span></div>
           <div class="toolbar"><div class="meta" id="voice-meta">Generate a voice or choose one below.</div><div class="actions"><button type="button" id="download-audio" disabled>Download MP3</button><button type="button" id="download-voice-srt" disabled>Download SRT</button><button type="button" id="download-voice-raw" class="hidden">Raw WAV</button></div></div>
           <div class="voice-result" id="voice-result"><div class="voice-empty"><svg class="studio-wave" viewBox="0 0 260 60" aria-hidden="true"><rect x="8" y="26.0" width="4" height="8" rx="2" fill="currentColor" opacity="0.35"/><rect x="17" y="22.5" width="4" height="15" rx="2" fill="currentColor" opacity="0.53"/><rect x="26" y="18.0" width="4" height="24" rx="2" fill="currentColor" opacity="0.71"/><rect x="35" y="21.0" width="4" height="18" rx="2" fill="currentColor" opacity="0.89"/><rect x="44" y="13.0" width="4" height="34" rx="2" fill="currentColor" opacity="0.35"/><rect x="53" y="7.0" width="4" height="46" rx="2" fill="currentColor" opacity="0.53"/><rect x="62" y="17.5" width="4" height="25" rx="2" fill="currentColor" opacity="0.71"/><rect x="71" y="11.5" width="4" height="37" rx="2" fill="currentColor" opacity="0.89"/><rect x="80" y="3.0" width="4" height="54" rx="2" fill="currentColor" opacity="0.35"/><rect x="89" y="9.0" width="4" height="42" rx="2" fill="currentColor" opacity="0.53"/><rect x="98" y="16.0" width="4" height="28" rx="2" fill="currentColor" opacity="0.71"/><rect x="107" y="6.0" width="4" height="48" rx="2" fill="currentColor" opacity="0.89"/><rect x="116" y="0.0" width="4" height="60" rx="2" fill="currentColor" opacity="0.35"/><rect x="125" y="7.5" width="4" height="45" rx="2" fill="currentColor" opacity="0.53"/><rect x="134" y="17.5" width="4" height="25" rx="2" fill="currentColor" opacity="0.71"/><rect x="143" y="11.0" width="4" height="38" rx="2" fill="currentColor" opacity="0.89"/><rect x="152" y="4.0" width="4" height="52" rx="2" fill="currentColor" opacity="0.35"/><rect x="161" y="13.0" width="4" height="34" rx="2" fill="currentColor" opacity="0.53"/><rect x="170" y="20.0" width="4" height="20" rx="2" fill="currentColor" opacity="0.71"/><rect x="179" y="9.0" width="4" height="42" rx="2" fill="currentColor" opacity="0.89"/><rect x="188" y="15.0" width="4" height="30" rx="2" fill="currentColor" opacity="0.35"/><rect x="197" y="21.0" width="4" height="18" rx="2" fill="currentColor" opacity="0.53"/><rect x="206" y="17.0" width="4" height="26" rx="2" fill="currentColor" opacity="0.71"/><rect x="215" y="23.0" width="4" height="14" rx="2" fill="currentColor" opacity="0.89"/><rect x="224" y="25.5" width="4" height="9" rx="2" fill="currentColor" opacity="0.35"/><rect x="233" y="21.0" width="4" height="18" rx="2" fill="currentColor" opacity="0.53"/><rect x="242" y="26.0" width="4" height="8" rx="2" fill="currentColor" opacity="0.71"/></svg><h3>A voiceover you can build on</h3><p>Generate narration from your script, or bring back a recent voiceover from your library.</p></div></div>
-          <div class="voice-next-actions"><button type="button" id="voice-open-enhance" class="secondary">Enhance this voice ↗</button><button type="button" id="voice-build-video" class="secondary">Use in a video →</button></div>
+          <div class="voice-next-actions"><button type="button" id="voice-open-enhance" class="secondary">Enhance this voice ↗</button></div>
         </section>
         <section class="studio-panel"><div class="heading-row"><div><span class="eyebrow">YOUR LIBRARY</span><h2>Recent voiceovers</h2></div><button type="button" id="voice-library-refresh" class="text-button">↻ Refresh</button></div><div id="recent-voice-list" class="library-list"><div class="empty-library">Loading your saved voiceovers…</div></div></section>
-        <div class="workflow-note"><b>01 Generate</b><span>→</span><b>02 Enhance</b><span>→</span><b>03 Create your video</b></div>
+        <div class="workflow-note"><b>01 Generate</b><span>→</span><b>02 Enhance</b><span>→</span><b>03 Download your audio</b></div>
       </main>
     </div>
 <section class="layout hidden" id="layout-enhance">
@@ -599,45 +599,6 @@
         </div>
       </main>
     </div>
-    <div class="layout hidden" id="layout-video">
-      <aside>
-        <form id="video-form">
-          <div class="label-row">
-            <label for="video-text">Script</label>
-            <span class="script-count" id="video-count">0 words · 0 characters</span>
-          </div>
-          <textarea id="video-text" class="story" placeholder="Paste the narration to find matching stock footage…"></textarea>
-          <div class="cues" id="video-cues"><span class="muted">Matching footage searches will appear here</span></div>
-          <button class="secondary" id="use-script-video" type="button">Use voice script</button>
-          <button class="secondary" id="plan-shots" type="button">Plan matching shots</button>
-          <label for="video-aspect">Frame</label>
-          <select id="video-aspect">
-            <option value="vertical">Vertical 9:16 (Shorts / TikTok)</option>
-            <option value="wide">Wide 16:9 (YouTube)</option>
-          </select>
-          <label for="pixabay-key">Pixabay API key</label>
-          <input id="pixabay-key" type="password" autocomplete="off" placeholder="Free key from pixabay.com/api/docs" />
-          <label for="pexels-key">Pexels API key</label>
-          <input id="pexels-key" type="password" autocomplete="off" placeholder="Optional extra source · pexels.com/api" />
-          <button class="secondary" id="save-footage-keys" type="button">Save keys on this PC</button>
-          <p class="hint">Plan short stock-footage beats from your narration, with backup searches for each shot. Generate a voiceover first. Keep the site credits.</p>
-          <button class="run" id="video-run" type="submit">Build video</button>
-          <div class="status" id="video-status">Needs a voiceover plus at least one free API key. The script guides the shot searches.</div>
-        </form>
-      </aside>
-      <main>
-        <div class="toolbar">
-          <div class="meta" id="video-meta">No video yet</div>
-          <div class="actions">
-            <button type="button" id="download-video" disabled>Download MP4</button>
-            <button type="button" id="download-credits" disabled>Download credits</button>
-          </div>
-        </div>
-        <div class="voice-result" id="video-result">
-          <div class="empty">Paste a script, save a Pixabay or Pexels key, and generate a voiceover. The app searches matching clips and merges them into one video.</div>
-        </div>
-      </main>
-    </div>
     <div class="layout hidden" id="layout-silence">
       <aside>
         <form id="silence-form">
@@ -734,12 +695,11 @@
 
     function showMode(mode) {
       const screens = {
-        voice: ["Voiceover studio", "Create narration, refine your sound, and bring it into your next video.", "CPU · Piper"],
+        voice: ["Voiceover studio", "Create narration, refine your sound, and download your finished audio.", "CPU · Piper"],
         enhance: ["Make your voice stand out", "Choose your audio, compare enhancers, and keep your favorite version.", "LOCAL AUDIO"],
         transcribe: ["Turn audio into words", "Transcribe your videos and audio into editable text and subtitles.", "CPU · Whisper"],
         music: ["Set the mood", "Create background music for your narration and mix it into your next cut.", "CPU · MusicGen"],
         sfx: ["Give the scene a sound", "Create sound effects and layer them over your narration.", "CPU · AudioLDM"],
-        video: ["Bring your narration to life", "Plan matching stock-footage searches and assemble a video around your voiceover.", "STOCK FOOTAGE"],
         silence: ["Keep the conversation moving", "Shorten long pauses while keeping natural breaths and word spacing.", "LOCAL AUDIO"]
       };
       if (!screens[mode]) return;
@@ -756,7 +716,7 @@
       try { localStorage.setItem('voiceStudio.workspace',mode); } catch {}
       window.dispatchEvent(new CustomEvent('studio:mode',{detail:mode}));
     }
-    for (const mode of ['voice','enhance','transcribe','music','sfx','video','silence']) document.getElementById('mode-'+mode).addEventListener('click',()=>showMode(mode));
+    for (const mode of ['voice','enhance','transcribe','music','sfx','silence']) document.getElementById('mode-'+mode).addEventListener('click',()=>showMode(mode));
 
 
     drop.addEventListener("click", () => fileInput.click());
@@ -1263,16 +1223,8 @@
     const sfxStatus = document.getElementById("sfx-status");
     const sfxRun = document.getElementById("sfx-run");
     const sfxCues = document.getElementById("sfx-cues");
-    const videoText = document.getElementById("video-text");
-    const videoCount = document.getElementById("video-count");
-    const videoCues = document.getElementById("video-cues");
-    const videoStatus = document.getElementById("video-status");
-    const videoRun = document.getElementById("video-run");
-    const planShots = document.getElementById("plan-shots");
     let lastMusic = null;
     let lastSfx = null;
-    let lastVideo = null;
-    let lastShotPlan = null;
     let cueTimer = null;
     function escapeText(value) {
       return String(value || "").replace(/[&<>"]/g, (ch) => ({
@@ -1521,213 +1473,8 @@
       a.click();
     });
 
-    function fillVideoFrom(text) {
-      videoText.value = text || "";
-      updateVideoCount();
-    }
-    function updateVideoCount() {
-      const text = videoText.value;
-      const characters = text.length;
-      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-      videoCount.textContent = words + " word" + (words === 1 ? "" : "s") +
-        " · " + characters + " character" + (characters === 1 ? "" : "s");
-      if (lastShotPlan && lastShotPlan.script !== text.trim()) {
-        lastShotPlan = null;
-        renderCueChips(videoCues, [], "Narration changed — plan the shots again");
-      }
-      scheduleCues();
-    }
-    videoText.addEventListener("input", updateVideoCount);
-    updateVideoCount();
-    function fillVideoFromScript() {
-      fillVideoFrom(document.getElementById("script").value.trim() || last?.text || "");
-    }
-    document.getElementById("use-script-video").addEventListener("click", fillVideoFromScript);
-    document.getElementById("goto-video").addEventListener("click", () => {
-      fillVideoFromScript();
-      showMode("video");
-    });
-    document.getElementById("plan-shots").addEventListener("click", async () => {
-      videoStatus.className = "status";
-      videoStatus.textContent = "Planning footage searches from your narration…";
-      planShots.disabled = true;
-      videoRun.disabled = true;
-      try {
-        if (location.protocol === "file:") {
-          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
-        }
-        const script = videoText.value.trim();
-        if (!script) throw new Error("Paste the narration so the shot planner can plan matching shots.");
-        const words = script.trim() ? script.trim().split(/\s+/).length : 1;
-        const shotCount = Math.min(24, Math.max(10, Math.round(words / 10) + 8));
-        const res = await fetch("/api/footage/plan", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ text: script, shots: shotCount }),
-        });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.error || "Could not plan shots");
-        lastShotPlan = {
-          script,
-          queries: payload.queries || [],
-          shots: payload.shots || [],
-          tone: payload.tone || "",
-          source: payload.source || "",
-        };
-        renderCueChips(
-          videoCues,
-          lastShotPlan.queries,
-          "the shot planner did not return shots",
-          lastShotPlan.tone
-        );
-        videoStatus.textContent = "Planned " + lastShotPlan.queries.length + " footage searches. Build the video to find matching clips.";
-      } catch (err) {
-        videoStatus.className = "status error";
-        videoStatus.textContent = err.message;
-      } finally {
-        planShots.disabled = false;
-        videoRun.disabled = false;
-      }
-    });
-    async function loadFootageKeys() {
-      try {
-        const res = await fetch("/api/footage/keys");
-        const payload = await res.json();
-        if (!res.ok) return;
-        videoStatus.textContent = payload.ready
-          ? "Keys saved. Generate a voiceover, then build the video."
-          : "Needs a voiceover plus at least one free API key.";
-        if (payload.pixabay) document.getElementById("pixabay-key").placeholder = "Pixabay key saved on this PC";
-        if (payload.pexels) document.getElementById("pexels-key").placeholder = "Pexels key saved on this PC";
-      } catch (err) {
-        // Keys stay blank until the user saves them.
-      }
-    }
-    loadFootageKeys();
-    document.getElementById("save-footage-keys").addEventListener("click", async () => {
-      videoStatus.className = "status";
-      try {
-        const res = await fetch("/api/footage/keys", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            pixabay: document.getElementById("pixabay-key").value,
-            pexels: document.getElementById("pexels-key").value,
-          }),
-        });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.error || "Could not save keys");
-        document.getElementById("pixabay-key").value = "";
-        document.getElementById("pexels-key").value = "";
-        videoStatus.textContent = payload.ready
-          ? "Keys saved on this PC. They are not uploaded anywhere else."
-          : "Saved, but both fields were empty. Paste a Pixabay or Pexels key.";
-        loadFootageKeys();
-      } catch (err) {
-        videoStatus.className = "status error";
-        videoStatus.textContent = err.message;
-      }
-    });
-    document.getElementById("video-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const script = videoText.value.trim();
-      const reusePlan = lastShotPlan && lastShotPlan.script === script && (lastShotPlan.queries || []).length >= 2;
-      videoStatus.className = "status";
-      videoStatus.textContent = reusePlan
-        ? "Fetching stock clips for the shot planner's shots and merging them with the voiceover…"
-        : "Finding clips that match your narration…";
-      videoRun.disabled = true;
-      planShots.disabled = true;
-      document.getElementById("download-video").disabled = true;
-      document.getElementById("download-credits").disabled = true;
-      try {
-        if (location.protocol === "file:") {
-          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
-        }
-        if (!lastVoice?.path) {
-          throw new Error("Generate a voiceover first, then build the video.");
-        }
-        const pixabay = document.getElementById("pixabay-key").value.trim();
-        const pexels = document.getElementById("pexels-key").value.trim();
-        if (pixabay || pexels) {
-          await fetch("/api/footage/keys", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ pixabay, pexels }),
-          });
-        }
-        const body = {
-          text: videoText.value,
-          voice_path: lastVoice.path,
-          aspect: document.getElementById("video-aspect").value,
-        };
-        if (reusePlan) {
-          body.queries = lastShotPlan.queries;
-          body.tone = lastShotPlan.tone || "";
-          if (lastShotPlan.shots && lastShotPlan.shots.length) body.shots = lastShotPlan.shots;
-        }
-        const res = await fetch("/api/footage", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.error || "Video build failed");
-        lastVideo = payload;
-        lastShotPlan = {
-          script,
-          queries: payload.queries || [],
-          shots: lastShotPlan && lastShotPlan.script === script ? (lastShotPlan.shots || []) : [],
-          tone: payload.tone || "",
-          source: payload.planner || "",
-        };
-        renderCueChips(videoCues, payload.queries || [], "No visual shots found", payload.tone || "");
-        const clipLines = (payload.clips || []).map((clip) =>
-          escapeText(
-            (clip.source || "") + " · " + (clip.query || "") +
-            (clip.duration ? " · " + clip.duration + "s" : "") +
-            " · " + (clip.user || "")
-          )
-        ).join("<br>");
-        const clipCount = payload.clip_count || (payload.clips || []).length;
-        document.getElementById("video-meta").textContent =
-          payload.name + " · " + payload.duration.toFixed(1) + "s · " + clipCount + " clips · " + payload.aspect;
-        document.getElementById("video-result").innerHTML =
-          '<div class="player-wrap"><strong>Preview</strong>' +
-          '<video controls autoplay src="' + payload.url + "?t=" + Date.now() + '" style="width:100%;margin-top:16px;max-height:70vh;background:#000"></video>' +
-          (clipLines ? '<div class="path">' + clipLines + "</div>" : "") +
-          '<div class="path">' + escapeText(payload.path) + "</div></div>";
-        document.getElementById("download-video").disabled = false;
-        document.getElementById("download-credits").disabled = !payload.credits_url;
-        const plannerLabel = payload.planner === "keywords"
-          ? "Used keyword shots because the shot planner was unavailable."
-          : "Planned short clips from your narration.";
-        videoStatus.textContent = plannerLabel + " Cut " + clipCount +
-          " unique clips to the voiceover. Saved the MP4 and a credits file.";
-      } catch (err) {
-        videoStatus.className = "status error";
-        videoStatus.textContent = err.message;
-      } finally {
-        videoRun.disabled = false;
-        planShots.disabled = false;
-      }
-    });
-    document.getElementById("download-video").addEventListener("click", () => {
-      if (!lastVideo?.url) return;
-      const a = document.createElement("a");
-      a.href = lastVideo.url;
-      a.download = lastVideo.name || "video.mp4";
-      a.click();
-    });
-    document.getElementById("download-credits").addEventListener("click", () => {
-      if (!lastVideo?.credits_url) return;
-      const a = document.createElement("a");
-      a.href = lastVideo.credits_url;
-      a.download = (lastVideo.name || "video").replace(/\.[^.]+$/, "") + ".credits.txt";
-      a.click();
-    });
     let initialWorkspace='voice';
-    try { const saved=localStorage.getItem('voiceStudio.workspace');if(['voice','enhance','transcribe','music','sfx','video','silence'].includes(saved))initialWorkspace=saved; } catch {}
+    try { const saved=localStorage.getItem('voiceStudio.workspace');if(['voice','enhance','transcribe','music','sfx','silence'].includes(saved))initialWorkspace=saved; } catch {}
     showMode(initialWorkspace);
   </script>
   <script src="{{ url_for('static', filename='studio.js') }}" defer></script>

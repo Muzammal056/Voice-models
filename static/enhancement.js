@@ -27,7 +27,7 @@
     el('download-audio').disabled = false;
     el('download-audio').textContent = lastVoice.name.endsWith('.wav') ? 'Download WAV' : 'Download MP3';
     el('download-voice-srt').disabled = !lastVoice.srt;
-    message('Selected ' + (item.label || 'original') + ' for downloads, music mixing and video.');
+    message('Selected ' + (item.label || 'original') + ' for downloads and music mixing.');
   }
   function render(job) {
     results.replaceChildren();
