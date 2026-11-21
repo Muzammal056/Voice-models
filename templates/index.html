@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Voice Studio · Local production workspace</title>
+  <style>
+    :root {
+      --bg: #12110f;
+      --panel: #1b1916;
+      --panel-2: #23201c;
+      --ink: #f3eee4;
+      --muted: #9c9488;
+      --line: #3a342c;
+      --accent: #d9a15a;
+      --accent-ink: #1a140c;
+      --danger: #d36b5e;
+      --ok: #8fbe7a;
+    }
+    * { box-sizing: border-box; }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 15px/1.45 "Segoe UI", system-ui, sans-serif;
+    }
+    .app {
+      min-height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr;
+    }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--line);
+    }
+    header h1 {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    header p {
+      margin: 2px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .modes {
+      display: flex;
+      gap: 6px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 4px;
+    }
+    .mode {
+      background: transparent;
+      color: var(--muted);
+      border: 0;
+      border-radius: 8px;
+      padding: 8px 14px;
+      cursor: pointer;
+      font: 600 13px/1 "Segoe UI", system-ui, sans-serif;
+    }
+    .mode.on {
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--ok);
+      display: inline-block;
+      margin-right: 8px;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      min-height: 0;
+    }
+    .layout.hidden { display: none; }
+    .hidden { display: none !important; }
+    aside, main {
+      min-height: 0;
+      padding: 20px;
+    }
+    aside {
+      border-right: 1px solid var(--line);
+      background: var(--panel);
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--muted);
+      margin: 14px 0 6px;
+    }
+    .hint {
+      margin: 6px 0 0;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .label-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 14px 0 6px;
+    }
+    .label-row label {
+      margin: 0;
+    }
+    .script-count {
+      font-size: 12px;
+      color: var(--muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    input[type="text"], select, textarea {
+      width: 100%;
+      background: var(--panel-2);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font: inherit;
+    }
+    textarea.paths {
+      min-height: 110px;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+    textarea.story {
+      min-height: 220px;
+      line-height: 1.5;
+    }
+    .story-out {
+      white-space: pre-wrap;
+      padding: 28px 24px;
+      font-size: 16px;
+      line-height: 1.65;
+    }
+    .job-list {
+      border-bottom: 1px solid #2c2823;
+      max-height: 220px;
+      overflow: auto;
+    }
+    .job {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      padding: 8px 12px;
+      border-bottom: 1px solid #2c2823;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .job:last-child { border-bottom: 0; }
+    .job.on { background: #2a2318; }
+    .job .mark { font-size: 12px; color: var(--muted); white-space: nowrap; }
+    .job .mark.ok { color: var(--ok); }
+    .job .mark.err { color: var(--danger); }
+    .drop {
+      border: 1px dashed var(--line);
+      border-radius: 12px;
+      padding: 28px 16px;
+      text-align: center;
+      background: var(--panel-2);
+      cursor: pointer;
+    }
+    .drop.drag {
+      border-color: var(--accent);
+      background: #2a2318;
+    }
+    .drop strong { display: block; margin-bottom: 4px; }
+    .drop span { color: var(--muted); font-size: 12px; }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .speed {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .speed input { flex: 1; }
+    .speed span {
+      min-width: 42px;
+      font-variant-numeric: tabular-nums;
+      color: var(--accent);
+      font-size: 13px;
+    }
+    .check {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin-top: 16px;
+      cursor: pointer;
+      color: var(--ink);
+      font-size: 13px;
+      line-height: 1.35;
+    }
+    .check input {
+      margin: 3px 0 0;
+      accent-color: var(--accent);
+    }
+    .check small {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 400;
+      margin-top: 2px;
+    }
+    button.run, button.secondary {
+      margin-top: 18px;
+      width: 100%;
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font: 600 14px/1 "Segoe UI", system-ui, sans-serif;
+      cursor: pointer;
+    }
+    button.run {
+      background: var(--accent);
+      color: var(--accent-ink);
+    }
+    button.secondary {
+      margin-top: 8px;
+      background: var(--panel-2);
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+    button.run:disabled, button.secondary:disabled {
+      opacity: 0.55;
+      cursor: wait;
+    }
+    .status {
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .status.error { color: var(--danger); }
+    main {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 12px;
+    }
+    .meta {
+      display: flex;
+      gap: 16px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+    .actions button {
+      background: var(--panel-2);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      font: inherit;
+    }
+    .transcript, .voice-result {
+      overflow: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 8px;
+    }
+    .seg {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      padding: 10px 12px;
+      border-bottom: 1px solid #2c2823;
+    }
+    .seg:last-child { border-bottom: 0; }
+    .time {
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 12px;
+      color: var(--accent);
+      padding-top: 2px;
+    }
+    .empty {
+      color: var(--muted);
+      padding: 48px 16px;
+      text-align: center;
+    }
+    .player-wrap {
+      padding: 28px 20px;
+    }
+    #enhancement-results:empty { display:none; }
+    audio { width: 100%; margin-top: 16px; }
+    .cues {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 8px 0 2px;
+      min-height: 26px;
+    }
+    .cues .chip {
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 3px 9px;
+      font-size: 11px;
+    }
+    .cues .chip.mood {
+      background: var(--accent);
+      color: var(--accent-ink);
+      border-color: transparent;
+    }
+    .cues .muted {
+      color: var(--muted);
+      font-size: 11px;
+      padding: 3px 0;
+    }
+    .path {
+      margin-top: 14px;
+      font-size: 12px;
+      color: var(--muted);
+      word-break: break-all;
+    }
+    @media (max-width: 860px) {
+      header { flex-wrap: wrap; }
+      .layout { grid-template-columns: 1fr; }
+      aside { border-right: 0; border-bottom: 1px solid var(--line); }
+    }
+  </style>
+  <link rel="stylesheet" href="{{ url_for('static', filename='studio.css') }}" />
+</head>
+<body>
+  <div class="app">
+    <header><div class="studio-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div><strong>Voice Studio</strong><small>LOCAL PRODUCTION WORKSPACE</small></div></div><nav class="modes" aria-label="Workspace"><button type="button" class="mode on" id="mode-voice">Voice</button><button type="button" class="mode" id="mode-enhance">Enhance</button><button type="button" class="mode" id="mode-transcribe">Transcribe</button><button type="button" class="mode" id="mode-music">Music</button><button type="button" class="mode" id="mode-sfx">Sound FX</button><button type="button" class="mode" id="mode-video">Video</button><button type="button" class="mode" id="mode-silence">Silence</button></nav><div class="session-chip"><span class="dot"></span>Local workspace</div></header>
+    <div class="workspace-title"><div><span class="eyebrow">A LITTLE MORE LIFE IN EVERY WORD</span><h1 id="heading">Voiceover studio</h1><p id="subhead">Create narration, refine your sound, and bring it into your next video.</p></div><span class="pill" id="badge">CPU · Piper</span></div>
+    <div class="layout hidden" id="layout-transcribe">
+      <aside>
+        <form id="form">
+          <label>Video file</label>
+          <div class="drop" id="drop">
+            <strong id="filename">Drop a video here</strong>
+            <span>or click to browse · mp4, mkv, mov, webm, wav, mp3</span>
+          </div>
+          <input id="file" name="file" type="file" hidden multiple accept="video/*,audio/*,.mp4,.mkv,.mov,.webm,.avi,.mp3,.wav,.m4a" />
+          <label for="path">Or paste a local path, or a list of paths</label>
+          <textarea id="path" name="path" class="paths" placeholder='One path per line, or a JSON list:
+["D:\videos\clip-one.mp4"
+"D:\videos\clip-two.mp4"]'></textarea>
+          <div class="script-count" id="path-count" style="margin-top:6px;">Paste one file or many</div>
+          <div class="row">
+            <div>
+              <label for="model">Model</label>
+              <select id="model" name="model">
+                {% for size in models %}
+                <option value="{{ size }}" {% if size == 'small' %}selected{% endif %}>{{ size }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div>
+              <label for="language">Language</label>
+              <select id="language" name="language">
+                {% for code, label in languages %}
+                <option value="{{ code }}">{{ label }}</option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <button class="run" id="run" type="submit">Transcribe</button>
+          <button class="secondary hidden" id="stop-batch" type="button">Stop batch</button>
+          <div class="status" id="status"></div>
+        </form>
+      </aside>
+      <main>
+        <div class="toolbar">
+          <div class="meta" id="meta">No transcript yet</div>
+          <div class="actions">
+            <button type="button" id="copy" disabled>Copy text</button>
+            <button type="button" id="txt" disabled>Download TXT</button>
+            <button type="button" id="srt" disabled>Download SRT</button>
+          </div>
+        </div>
+        <div class="transcript" id="transcript">
+          <div class="empty">Drop a video, or paste one path or a list of paths. TXT and SRT are saved to the outputs folder.</div>
+        </div>
+      </main>
+    </div>
+    <div class="layout" id="layout-voice">
+      <aside><div class="panel-heading"><span class="eyebrow">CREATE</span><h2>Write it. Voice it.</h2></div>
+        <form id="voice-form">
+          <div class="label-row">
+            <label for="script">Script</label>
+            <span class="script-count" id="script-count">0 words · 0 characters</span>
+          </div>
+          <textarea id="script" placeholder="Write the narration for your video…"></textarea>
+          <button class="secondary" id="use-transcript" type="button" disabled>Use last transcript</button>
+          <label>Voice source</label>
+          <div class="modes" style="width:100%;margin-top:6px;">
+            <button type="button" class="mode on" id="source-preset">Preset</button>
+            <button type="button" class="mode" id="source-clone">Clone my voice</button>
+          </div>
+          <div id="preset-fields">
+            <label for="voice">Voice model</label>
+            <select id="voice"></select>
+            <div id="kokoro-fields" class="hidden"><label class="check"><input id="kokoro-polish" type="checkbox" checked /><span>Pack clarity finish<small>Use the supplied pack’s gentle EQ and loudness leveling. Raw audio is also kept.</small></span></label><div id="kokoro-sample-wrap" class="hidden"><label for="kokoro-sample">Voice sample from your pack</label><audio id="kokoro-sample" controls preload="none"></audio></div></div>
+          </div>
+          <div id="clone-fields" class="hidden">
+            <label>Voice sample</label>
+            <div class="drop" id="clone-drop">
+              <strong id="clone-filename">Drop a 10–20s clip here</strong>
+              <span>wav, mp3, m4a · one speaker, no music, 10–12 seconds clones best</span>
+            </div>
+            <input id="clone-file" type="file" hidden accept="audio/*,video/*,.wav,.mp3,.m4a,.flac,.ogg,.mp4,.mkv,.mov,.webm" />
+            <label for="clone-path">Or paste a local path</label>
+            <input id="clone-path" type="text" placeholder="C:\Users\HP\Videos\my-voice.wav" />
+            <label for="clone-name">Save in library as</label>
+            <input id="clone-name" type="text" placeholder="Zack" />
+            <p class="hint">Use the same name (Zack) only for more dry speech. Clips with music or sound effects make the clone less clear.</p>
+            <label for="clone-language">Spoken language</label>
+            <select id="clone-language">
+              {% for code, label in clone_languages %}
+              <option value="{{ code }}">{{ label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <label for="speed">Speaking speed</label>
+          <div class="speed">
+            <input id="speed" type="range" min="0.7" max="1.4" step="0.05" value="1" />
+            <span id="speed-val">1.00×</span>
+          </div>
+          <label class="check">
+            <input id="remove-silence" type="checkbox" checked />
+            <span>
+              Remove extra silence
+              <small>Cuts dead air between words. No leftover gap unless you raise the pause slider.</small>
+            </span>
+          </label>
+          <button class="run" id="speak" type="submit">Generate voiceover</button>
+          <div class="script-shortcuts"><button class="secondary" id="goto-music" type="button">Music</button><button class="secondary" id="goto-sfx" type="button">Sound effects</button><button class="secondary" id="goto-video" type="button">Build a video</button></div>
+          <div class="status" id="voice-status">First use of a voice downloads the model, then it stays on this PC.</div>
+        </form>
+      </aside>
+      <main>
+        <section class="studio-panel voice-preview-panel">
+          <div class="heading-row"><div><span class="eyebrow">YOUR CURRENT TAKE</span><h2>Voiceover preview</h2></div><span id="voice-active-label" class="pill">No voice selected</span></div>
+          <div class="toolbar"><div class="meta" id="voice-meta">Generate a voice or choose one below.</div><div class="actions"><button type="button" id="download-audio" disabled>Download MP3</button><button type="button" id="download-voice-srt" disabled>Download SRT</button><button type="button" id="download-voice-raw" class="hidden">Raw WAV</button></div></div>
+          <div class="voice-result" id="voice-result"><div class="voice-empty"><svg class="studio-wave" viewBox="0 0 260 60" aria-hidden="true"><rect x="8" y="26.0" width="4" height="8" rx="2" fill="currentColor" opacity="0.35"/><rect x="17" y="22.5" width="4" height="15" rx="2" fill="currentColor" opacity="0.53"/><rect x="26" y="18.0" width="4" height="24" rx="2" fill="currentColor" opacity="0.71"/><rect x="35" y="21.0" width="4" height="18" rx="2" fill="currentColor" opacity="0.89"/><rect x="44" y="13.0" width="4" height="34" rx="2" fill="currentColor" opacity="0.35"/><rect x="53" y="7.0" width="4" height="46" rx="2" fill="currentColor" opacity="0.53"/><rect x="62" y="17.5" width="4" height="25" rx="2" fill="currentColor" opacity="0.71"/><rect x="71" y="11.5" width="4" height="37" rx="2" fill="currentColor" opacity="0.89"/><rect x="80" y="3.0" width="4" height="54" rx="2" fill="currentColor" opacity="0.35"/><rect x="89" y="9.0" width="4" height="42" rx="2" fill="currentColor" opacity="0.53"/><rect x="98" y="16.0" width="4" height="28" rx="2" fill="currentColor" opacity="0.71"/><rect x="107" y="6.0" width="4" height="48" rx="2" fill="currentColor" opacity="0.89"/><rect x="116" y="0.0" width="4" height="60" rx="2" fill="currentColor" opacity="0.35"/><rect x="125" y="7.5" width="4" height="45" rx="2" fill="currentColor" opacity="0.53"/><rect x="134" y="17.5" width="4" height="25" rx="2" fill="currentColor" opacity="0.71"/><rect x="143" y="11.0" width="4" height="38" rx="2" fill="currentColor" opacity="0.89"/><rect x="152" y="4.0" width="4" height="52" rx="2" fill="currentColor" opacity="0.35"/><rect x="161" y="13.0" width="4" height="34" rx="2" fill="currentColor" opacity="0.53"/><rect x="170" y="20.0" width="4" height="20" rx="2" fill="currentColor" opacity="0.71"/><rect x="179" y="9.0" width="4" height="42" rx="2" fill="currentColor" opacity="0.89"/><rect x="188" y="15.0" width="4" height="30" rx="2" fill="currentColor" opacity="0.35"/><rect x="197" y="21.0" width="4" height="18" rx="2" fill="currentColor" opacity="0.53"/><rect x="206" y="17.0" width="4" height="26" rx="2" fill="currentColor" opacity="0.71"/><rect x="215" y="23.0" width="4" height="14" rx="2" fill="currentColor" opacity="0.89"/><rect x="224" y="25.5" width="4" height="9" rx="2" fill="currentColor" opacity="0.35"/><rect x="233" y="21.0" width="4" height="18" rx="2" fill="currentColor" opacity="0.53"/><rect x="242" y="26.0" width="4" height="8" rx="2" fill="currentColor" opacity="0.71"/></svg><h3>A voiceover you can build on</h3><p>Generate narration from your script, or bring back a recent voiceover from your library.</p></div></div>
+          <div class="voice-next-actions"><button type="button" id="voice-open-enhance" class="secondary">Enhance this voice ↗</button><button type="button" id="voice-build-video" class="secondary">Use in a video →</button></div>
+        </section>
+        <section class="studio-panel"><div class="heading-row"><div><span class="eyebrow">YOUR LIBRARY</span><h2>Recent voiceovers</h2></div><button type="button" id="voice-library-refresh" class="text-button">↻ Refresh</button></div><div id="recent-voice-list" class="library-list"><div class="empty-library">Loading your saved voiceovers…</div></div></section>
+        <div class="workflow-note"><b>01 Generate</b><span>→</span><b>02 Enhance</b><span>→</span><b>03 Create your video</b></div>
+      </main>
+    </div>
+<section class="layout hidden" id="layout-enhance">
+  <main class="enhance-workspace">
+    <div class="enhance-grid">
+      <section class="studio-panel source-panel">
+        <div class="section-heading"><span class="step-number">01</span><div><h2>Choose your audio</h2><p>One source for every selected enhancer.</p></div></div>
+        <div class="source-options" role="radiogroup" aria-label="Audio source">
+          <label class="source-choice"><input type="radio" name="enhance-source" value="latest" checked /><span><strong>Last generated voice</strong><small id="latest-voice-caption">Loading your voice library…</small></span><span class="source-icon" aria-hidden="true">↶</span></label>
+          <label class="source-choice"><input type="radio" name="enhance-source" value="saved" /><span><strong>Saved voiceover</strong><small>Choose from your recent originals</small></span><span class="source-icon" aria-hidden="true">≡</span></label>
+          <label class="source-choice"><input type="radio" name="enhance-source" value="upload" /><span><strong>Upload a new file</strong><small>Audio or video from your computer</small></span><span class="source-icon" aria-hidden="true">↑</span></label>
+        </div>
+        <div id="enhance-history-wrap" class="source-detail hidden"><label for="enhance-history">Recent voiceovers</label><select id="enhance-history"><option value="">Choose a saved voiceover</option></select></div>
+        <div id="enhance-upload-wrap" class="source-detail hidden">
+          <label for="enhance-file" id="enhance-drop" class="upload-drop" role="button" tabindex="0" aria-label="Choose an audio or video file"><span class="upload-symbol" aria-hidden="true">↑</span><strong>Drop your audio here</strong><span>or click to browse · WAV, MP3, FLAC, M4A, MP4</span></label>
+          <input id="enhance-file" type="file" hidden accept="audio/*,video/*,.wav,.mp3,.m4a,.flac,.ogg,.mp4,.mkv,.mov,.webm" />
+          <div class="file-info hidden" id="enhance-upload-info"><span id="enhance-upload-name"></span><button type="button" id="enhance-clear-file" class="text-button">Remove</button></div>
+          <details class="local-path"><summary>Use a local file path</summary><label for="enhance-path">Path on this computer</label><input id="enhance-path" type="text" placeholder="D:\Audio\narration.wav" /></details>
+        </div>
+        <div class="source-preview"><span class="eyebrow">SELECTED SOURCE</span><p id="enhance-source-name">Loading your last voiceover…</p><audio id="enhance-source-preview" controls preload="metadata" class="hidden"></audio><small id="enhance-source-detail" class="hint"></small></div>
+        <button type="button" id="enhance-refresh" class="text-button">↻ Refresh voice library</button>
+      </section>
+      <section class="studio-panel processor-panel">
+        <div class="section-heading"><span class="step-number">02</span><div><h2>Choose your enhancers</h2><p>Compare the three enhancers, or choose any combination.</p></div></div>
+        <div class="selection-toolbar"><span id="enhance-selection-count">1 enhancer selected</span><div><button type="button" id="enhance-select-cleanup" class="text-button">Select cleanup models</button><button type="button" id="enhance-clear-models" class="text-button">Clear</button></div></div>
+        <div class="processor-grid">
+          <label class="processor-option"><input type="checkbox" name="enhance-provider" value="deepfilternet" checked /><span class="processor-letter">D</span><strong>DeepFilterNet 3</strong><span class="processor-description">Clean up hiss and background noise.</span><small data-model-status="deepfilternet">Checking model…</small></label>
+          <label class="processor-option"><input type="checkbox" name="enhance-provider" value="resemble" /><span class="processor-letter">R</span><strong>Resemble Enhance</strong><span class="processor-description">Restore clarity to muffled or distorted speech.</span><small data-model-status="resemble">Checking model…</small></label>
+          <label class="processor-option"><input type="checkbox" name="enhance-provider" value="clearvoice" /><span class="processor-letter">C</span><strong>ClearerVoice</strong><span class="processor-description">Full-band speech enhancement.</span><small data-model-status="clearvoice">Checking model…</small></label>
+          <label class="processor-option"><input type="checkbox" name="enhance-provider" value="clearvoice_sr" /><span class="processor-letter">+</span><strong>Bandwidth extension</strong><span class="processor-description">Add high-frequency detail with ClearerVoice.</span><small data-model-status="clearvoice_sr">Checking model…</small></label>
+        </div>
+        <div class="enhance-options"><div><label for="enhance-strength">Enhancement strength <output id="enhance-strength-value">75%</output></label><input id="enhance-strength" type="range" min="5" max="100" step="5" value="75" /><p class="hint">Blend the enhanced signal with the original.</p></div><label class="check"><input id="enhance-normalize" type="checkbox" checked /><span>Balance loudness<small>Keep the enhanced versions at a consistent level.</small></span></label></div>
+        <label class="check auto-enhance"><input id="enhance-auto" type="checkbox" /><span>Enhance new voiceovers automatically<small>Apply the checked models after voice generation.</small></span></label>
+        <div class="enhance-run-row"><button type="button" id="enhance-run" class="run">Enhance audio <span aria-hidden="true">→</span></button><button type="button" id="enhance-cancel" class="secondary hidden">Cancel</button></div>
+        <div id="enhance-status" class="status" role="status" aria-live="polite">Choose your source and one or more enhancers.</div><progress id="enhance-progress" class="hidden" max="1" value="0" aria-label="Enhancement results completed"></progress>
+        <p id="enhancer-availability" class="hint">Original audio is preserved. Model processing runs locally.</p>
+      </section>
+    </div>
+    <section class="enhance-results-section"><div class="results-heading"><div><span class="eyebrow">03 · LISTEN & CHOOSE</span><h2>Compare your results</h2><p id="enhance-results-source" class="hint"></p></div><span id="enhance-result-count" class="pill">No results yet</span></div><div id="enhancement-results" class="result-grid"><div class="results-empty"><span class="empty-wave" aria-hidden="true">▂ ▅ ▃ ▇ ▅ ▂ ▆ ▃ ▅ ▂</span><h3>Your best take is one click away</h3><p>Start an enhancement to hear the original and your selected versions side by side.</p></div></div></section>
+  </main>
+</section>
+
+    <div class="layout hidden" id="layout-music">
+      <aside>
+        <form id="music-form">
+          <div class="label-row">
+            <label for="music-text">Script or topic</label>
+            <span class="script-count" id="music-count">0 words · 0 characters</span>
+          </div>
+          <textarea id="music-text" placeholder="Paste the narration. Words like spy, jungle, or surgery set the music mood…"></textarea>
+          <div class="cues" id="music-cues"><span class="muted">Keywords from the script will show here</span></div>
+          <button class="secondary" id="use-script-music" type="button">Use voice script</button>
+          <label for="music-style">Style</label>
+          <select id="music-style">
+            {% for code, label in music_styles %}
+            <option value="{{ code }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label for="music-seconds">Length</label>
+          <div class="speed">
+            <input id="music-seconds" type="range" min="6" max="15" step="1" value="{{ music_seconds }}" />
+            <span id="music-seconds-val">{{ music_seconds }}s</span>
+          </div>
+          <p class="hint">Uses mood and setting words from the script, not the full narration. First run downloads MusicGen (~2 GB). On CPU, 8 seconds can take several minutes.</p>
+          <label class="check">
+            <input id="music-mix" type="checkbox" />
+            <span>
+              Mix under last voiceover
+              <small>Loops the bed quietly under the last generated voice MP3.</small>
+            </span>
+          </label>
+          <button class="run" id="music-run" type="submit">Generate background music</button>
+          <div class="status" id="music-status">Uses the free MusicGen small model on this PC.</div>
+        </form>
+      </aside>
+      <main>
+        <div class="toolbar">
+          <div class="meta" id="music-meta">No music yet</div>
+          <div class="actions">
+            <button type="button" id="download-music" disabled>Download MP3</button>
+          </div>
+        </div>
+        <div class="voice-result" id="music-result">
+          <div class="empty">Paste a script. Music is generated from the mood words it finds, such as spy, jungle, or surgery.</div>
+        </div>
+      </main>
+    </div>
+    <div class="layout hidden" id="layout-sfx">
+      <aside>
+        <form id="sfx-form">
+          <div class="label-row">
+            <label for="sfx-text">Sound or scene</label>
+            <span class="script-count" id="sfx-count">0 words · 0 characters</span>
+          </div>
+          <textarea id="sfx-text" placeholder="glass shatter, rain on a roof, or paste a scene from the script…"></textarea>
+          <div class="cues" id="sfx-cues"><span class="muted">Sound words from the script will show here</span></div>
+          <button class="secondary" id="use-script-sfx" type="button">Use voice script</button>
+          <label for="sfx-style">Type</label>
+          <select id="sfx-style">
+            {% for code, label in sfx_styles %}
+            <option value="{{ code }}">{{ label }}</option>
+            {% endfor %}
+          </select>
+          <label for="sfx-seconds">Length</label>
+          <div class="speed">
+            <input id="sfx-seconds" type="range" min="2" max="8" step="1" value="{{ sfx_seconds }}" />
+            <span id="sfx-seconds-val">{{ sfx_seconds }}s</span>
+          </div>
+          <p class="hint">Finds event words in script order (rain, footsteps, glass…) and writes up to 3 foley clips. First run downloads AudioLDM (~1.5 GB).</p>
+          <label class="check">
+            <input id="sfx-mix" type="checkbox" />
+            <span>
+              Layer over last voiceover
+              <small>Places the effect on top of the last generated voice MP3.</small>
+            </span>
+          </label>
+          <button class="run" id="sfx-run" type="submit">Generate sound effect</button>
+          <div class="status" id="sfx-status">Uses the free AudioLDM small model on this PC.</div>
+        </form>
+      </aside>
+      <main>
+        <div class="toolbar">
+          <div class="meta" id="sfx-meta">No sound effect yet</div>
+          <div class="actions">
+            <button type="button" id="download-sfx" disabled>Download MP3</button>
+          </div>
+        </div>
+        <div class="voice-result" id="sfx-result">
+          <div class="empty">Paste a script. Sound effects are generated from event words it finds, such as rain, footsteps, or glass.</div>
+        </div>
+      </main>
+    </div>
+    <div class="layout hidden" id="layout-video">
+      <aside>
+        <form id="video-form">
+          <div class="label-row">
+            <label for="video-text">Script</label>
+            <span class="script-count" id="video-count">0 words · 0 characters</span>
+          </div>
+          <textarea id="video-text" class="story" placeholder="Paste the narration to find matching stock footage…"></textarea>
+          <div class="cues" id="video-cues"><span class="muted">Matching footage searches will appear here</span></div>
+          <button class="secondary" id="use-script-video" type="button">Use voice script</button>
+          <button class="secondary" id="plan-shots" type="button">Plan matching shots</button>
+          <label for="video-aspect">Frame</label>
+          <select id="video-aspect">
+            <option value="vertical">Vertical 9:16 (Shorts / TikTok)</option>
+            <option value="wide">Wide 16:9 (YouTube)</option>
+          </select>
+          <label for="pixabay-key">Pixabay API key</label>
+          <input id="pixabay-key" type="password" autocomplete="off" placeholder="Free key from pixabay.com/api/docs" />
+          <label for="pexels-key">Pexels API key</label>
+          <input id="pexels-key" type="password" autocomplete="off" placeholder="Optional extra source · pexels.com/api" />
+          <button class="secondary" id="save-footage-keys" type="button">Save keys on this PC</button>
+          <p class="hint">Plan short stock-footage beats from your narration, with backup searches for each shot. Generate a voiceover first. Keep the site credits.</p>
+          <button class="run" id="video-run" type="submit">Build video</button>
+          <div class="status" id="video-status">Needs a voiceover plus at least one free API key. The script guides the shot searches.</div>
+        </form>
+      </aside>
+      <main>
+        <div class="toolbar">
+          <div class="meta" id="video-meta">No video yet</div>
+          <div class="actions">
+            <button type="button" id="download-video" disabled>Download MP4</button>
+            <button type="button" id="download-credits" disabled>Download credits</button>
+          </div>
+        </div>
+        <div class="voice-result" id="video-result">
+          <div class="empty">Paste a script, save a Pixabay or Pexels key, and generate a voiceover. The app searches matching clips and merges them into one video.</div>
+        </div>
+      </main>
+    </div>
+    <div class="layout hidden" id="layout-silence">
+      <aside>
+        <form id="silence-form">
+          <label>Audio or video</label>
+          <div class="drop" id="silence-drop">
+            <strong id="silence-filename">Drop a file here</strong>
+            <span>Cuts long gaps from the soundtrack · mp3, wav, mp4, mkv</span>
+          </div>
+          <input id="silence-file" type="file" hidden accept="video/*,audio/*,.mp4,.mkv,.mov,.webm,.avi,.mp3,.wav,.m4a" />
+          <label for="silence-path">Or paste a local path</label>
+          <input id="silence-path" type="text" placeholder="C:\Users\HP\Videos\clip.mp4" />
+          <label for="max-pause">Longest pause to keep</label>
+          <div class="speed">
+            <input id="max-pause" type="range" min="0" max="0.40" step="0.02" value="0" />
+            <span id="pause-val">0.00s</span>
+          </div>
+          <button class="run" id="silence-run" type="submit">Remove silence</button>
+          <div class="status" id="silence-status">0s removes all dead air. Raise it if you want short breaths to stay.</div>
+        </form>
+      </aside>
+      <main>
+        <div class="toolbar">
+          <div class="meta" id="silence-meta">No cleaned audio yet</div>
+          <div class="actions">
+            <button type="button" id="download-silence" disabled>Download MP3</button>
+            <button type="button" id="download-silence-srt" disabled>Download SRT</button>
+          </div>
+        </div>
+        <div class="voice-result" id="silence-result">
+          <div class="empty">Drop a voiceover or video and cut silence. Leave the pause at 0s for no gap.</div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script>
+    const fileInput = document.getElementById("file");
+    const drop = document.getElementById("drop");
+    const filename = document.getElementById("filename");
+    const form = document.getElementById("form");
+    const statusEl = document.getElementById("status");
+    const run = document.getElementById("run");
+    const stopBatch = document.getElementById("stop-batch");
+    const transcript = document.getElementById("transcript");
+    const meta = document.getElementById("meta");
+    const pathBox = document.getElementById("path");
+    const pathCount = document.getElementById("path-count");
+    let last = null;
+    let lastVoice = null;
+    let voiceGenerating = false;
+    let batchJobs = [];
+    let batchCancel = false;
+
+    function parsePaths(raw) {
+      const text = (raw || "").trim();
+      if (!text) return [];
+      const found = [];
+      const quoteRe = /"([^"\r\n]+)"|'([^'\r\n]+)'/g;
+      let match;
+      while ((match = quoteRe.exec(text))) found.push(match[1] || match[2]);
+      if (!found.length) {
+        text.split(/\r?\n/).forEach((line) => {
+          let item = line.trim().replace(/^\[/, "").replace(/\]$/, "").replace(/,$/, "").trim();
+          item = item.replace(/^["']|["']$/g, "").trim();
+          if (item) found.push(item);
+        });
+      }
+      const seen = new Set();
+      const out = [];
+      found.forEach((item) => {
+        const path = item.trim();
+        const key = path.toLowerCase();
+        if (!path || path === "[" || path === "]" || seen.has(key)) return;
+        seen.add(key);
+        out.push(path);
+      });
+      return out;
+    }
+
+    function updatePathCount() {
+      const n = parsePaths(pathBox.value).length;
+      if (n > 1) pathCount.textContent = n + " files in the list";
+      else if (n === 1) pathCount.textContent = "1 file";
+      else pathCount.textContent = "Paste one file or many";
+    }
+    pathBox.addEventListener("input", updatePathCount);
+    updatePathCount();
+
+    function fmt(seconds) {
+      const s = Math.max(0, seconds);
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return String(m).padStart(2, "0") + ":" + String(sec).padStart(2, "0");
+    }
+
+    function showMode(mode) {
+      const screens = {
+        voice: ["Voiceover studio", "Create narration, refine your sound, and bring it into your next video.", "CPU · Piper"],
+        enhance: ["Make your voice stand out", "Choose your audio, compare enhancers, and keep your favorite version.", "LOCAL AUDIO"],
+        transcribe: ["Turn audio into words", "Transcribe your videos and audio into editable text and subtitles.", "CPU · Whisper"],
+        music: ["Set the mood", "Create background music for your narration and mix it into your next cut.", "CPU · MusicGen"],
+        sfx: ["Give the scene a sound", "Create sound effects and layer them over your narration.", "CPU · AudioLDM"],
+        video: ["Bring your narration to life", "Plan matching stock-footage searches and assemble a video around your voiceover.", "STOCK FOOTAGE"],
+        silence: ["Keep the conversation moving", "Shorten long pauses while keeping natural breaths and word spacing.", "LOCAL AUDIO"]
+      };
+      if (!screens[mode]) return;
+      for (const name of Object.keys(screens)) {
+        document.getElementById('layout-'+name).classList.toggle('hidden',name!==mode);
+        document.getElementById('mode-'+name).classList.toggle('on',name===mode);
+        document.getElementById('mode-'+name).setAttribute('aria-current',name===mode?'page':'false');
+      }
+      const [heading,subhead,badge]=screens[mode];
+      document.getElementById('heading').textContent=heading;
+      document.getElementById('subhead').textContent=subhead;
+      document.getElementById('badge').textContent=badge;
+      if (mode==='voice') setSource(cloneMode?'clone':'preset');
+      try { localStorage.setItem('voiceStudio.workspace',mode); } catch {}
+      window.dispatchEvent(new CustomEvent('studio:mode',{detail:mode}));
+    }
+    for (const mode of ['voice','enhance','transcribe','music','sfx','video','silence']) document.getElementById('mode-'+mode).addEventListener('click',()=>showMode(mode));
+
+
+    drop.addEventListener("click", () => fileInput.click());
+    drop.addEventListener("dragover", (e) => { e.preventDefault(); drop.classList.add("drag"); });
+    drop.addEventListener("dragleave", () => drop.classList.remove("drag"));
+    drop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      drop.classList.remove("drag");
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        filename.textContent = e.dataTransfer.files.length > 1
+          ? e.dataTransfer.files.length + " files"
+          : e.dataTransfer.files[0].name;
+      }
+    });
+    fileInput.addEventListener("change", () => {
+      if (!fileInput.files.length) return;
+      filename.textContent = fileInput.files.length > 1
+        ? fileInput.files.length + " files"
+        : fileInput.files[0].name;
+    });
+
+    function showTranscript(payload) {
+      last = payload;
+      document.getElementById("use-transcript").disabled = !payload?.text;
+      document.getElementById("copy").disabled = !payload?.text;
+      document.getElementById("txt").disabled = !payload?.text;
+      document.getElementById("srt").disabled = !payload?.srt;
+      if (!payload || payload.error) {
+        meta.textContent = payload?.name ? (payload.name + " failed") : "No transcript yet";
+        return;
+      }
+      meta.textContent = (payload.name || "Video") + " · " +
+        payload.duration.toFixed(1) + "s · " +
+        payload.language + " (" + Math.round(payload.language_probability * 100) + "%) · " +
+        payload.segments.length + " segments";
+    }
+
+    function renderBatch() {
+      const jobsHtml = batchJobs.length
+        ? '<div class="job-list">' + batchJobs.map((job, i) =>
+            '<div class="job' + (job.payload && job.payload === last ? " on" : "") +
+            '" data-i="' + i + '"><div>' + (job.name || "File") +
+            '</div><div class="mark ' + (job.error ? "err" : (job.payload ? "ok" : "")) + '">' +
+            (job.error ? "failed" : (job.busy ? "working" : (job.payload ? "done" : "waiting"))) +
+            "</div></div>"
+          ).join("") + "</div>"
+        : "";
+      if (last && last.segments && last.segments.length) {
+        transcript.innerHTML = jobsHtml + last.segments.map((seg) =>
+          '<div class="seg"><div class="time">' + fmt(seg.start) + " → " + fmt(seg.end) +
+          '</div><div>' + (seg.text || "") + "</div></div>"
+        ).join("");
+      } else if (last && last.error) {
+        transcript.innerHTML = jobsHtml + '<div class="empty">' + last.error + "</div>";
+      } else if (!last || !last.segments || !last.segments.length) {
+        transcript.innerHTML = jobsHtml + '<div class="empty">' +
+          (batchJobs.length ? "No speech detected in this file." : "Choose a video and click Transcribe.") +
+          "</div>";
+      }
+      transcript.querySelectorAll(".job").forEach((el) => {
+        el.addEventListener("click", () => {
+          const job = batchJobs[Number(el.getAttribute("data-i"))];
+          if (job?.payload) showTranscript(job.payload);
+          else if (job?.error) {
+            last = { name: job.name, error: job.error, text: "", srt: "", segments: [] };
+            showTranscript(last);
+          }
+          renderBatch();
+        });
+      });
+    }
+
+    async function transcribeOne(formExtra) {
+      const data = new FormData();
+      data.append("model", document.getElementById("model").value);
+      data.append("language", document.getElementById("language").value);
+      formExtra(data);
+      const res = await fetch("/api/transcribe", { method: "POST", body: data });
+      const raw = await res.text();
+      let payload;
+      try {
+        payload = JSON.parse(raw);
+      } catch {
+        throw new Error("The server sent a web page instead of a transcript. Paste the full file path and try again.");
+      }
+      if (!res.ok) throw new Error(payload.error || "Transcription failed");
+      return payload;
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      statusEl.className = "status";
+      run.disabled = true;
+      batchCancel = false;
+      stopBatch.disabled = false;
+      const paths = parsePaths(pathBox.value);
+      const uploads = fileInput.files && fileInput.files.length ? Array.from(fileInput.files) : [];
+      const jobs = paths.length
+        ? paths.map((path) => ({ name: path.split(/[\\/]/).pop(), path, payload: null, error: "", busy: false }))
+        : uploads.map((file) => ({ name: file.name, file, payload: null, error: "", busy: false }));
+      if (!jobs.length) {
+        statusEl.className = "status error";
+        statusEl.textContent = "Choose a video file or paste a local path (or a list of paths).";
+        run.disabled = false;
+        return;
+      }
+      batchJobs = jobs;
+      stopBatch.classList.toggle("hidden", jobs.length < 2);
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        let done = 0;
+        let failed = 0;
+        for (let i = 0; i < jobs.length; i += 1) {
+          if (batchCancel) break;
+          const job = jobs[i];
+          job.busy = true;
+          statusEl.textContent = "Transcribing " + (i + 1) + " of " + jobs.length + " · " + job.name;
+          renderBatch();
+          try {
+            const payload = await transcribeOne((data) => {
+              if (job.path) data.append("path", job.path);
+              else data.append("file", job.file);
+            });
+            job.payload = payload;
+            showTranscript(payload);
+            done += 1;
+          } catch (err) {
+            job.error = err.message;
+            failed += 1;
+          }
+          job.busy = false;
+          renderBatch();
+        }
+        const firstOk = jobs.find((job) => job.payload);
+        if (firstOk?.payload && last !== firstOk.payload && !jobs.some((job) => job.payload === last)) {
+          showTranscript(firstOk.payload);
+        }
+        renderBatch();
+        if (batchCancel) {
+          statusEl.textContent = "Stopped after " + done + " of " + jobs.length + ". Files already done are in outputs.";
+        } else if (failed && done) {
+          statusEl.textContent = "Finished " + done + " file" + (done === 1 ? "" : "s") + ", " + failed + " failed. Saved to the outputs folder.";
+        } else if (failed) {
+          statusEl.className = "status error";
+          statusEl.textContent = jobs[0].error || "Transcription failed";
+        } else {
+          statusEl.textContent = jobs.length > 1
+            ? "Saved " + done + " transcripts to the outputs folder."
+            : "Saved to the outputs folder.";
+        }
+      } catch (err) {
+        statusEl.className = "status error";
+        statusEl.textContent = err.message;
+      } finally {
+        run.disabled = false;
+        stopBatch.disabled = false;
+        stopBatch.classList.add("hidden");
+      }
+    });
+    stopBatch.addEventListener("click", () => {
+      batchCancel = true;
+      stopBatch.disabled = true;
+      statusEl.textContent = "Stopping after this file…";
+    });
+
+    function download(name, content) {
+      const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+    document.getElementById("copy").addEventListener("click", async () => {
+      if (last?.text) await navigator.clipboard.writeText(last.text);
+    });
+    document.getElementById("txt").addEventListener("click", () => {
+      if (last?.text) download((last.name || "transcript") + ".txt", last.text + "\n");
+    });
+    document.getElementById("srt").addEventListener("click", () => {
+      if (last?.srt) download((last.name || "transcript") + ".srt", last.srt);
+    });
+
+    const voiceSelect = document.getElementById("voice");
+    const speed = document.getElementById("speed");
+    const speedVal = document.getElementById("speed-val");
+    const voiceStatus = document.getElementById("voice-status");
+    const speakBtn = document.getElementById("speak");
+    const cloneFile = document.getElementById("clone-file");
+    const cloneDrop = document.getElementById("clone-drop");
+    const cloneFilename = document.getElementById("clone-filename");
+    const VOICE_PREF_KEY = "voiceApp.selectedVoice";
+    const SOURCE_PREF_KEY = "voiceApp.voiceSource";
+    function readPref(key) {
+      try { return localStorage.getItem(key) || ""; } catch { return ""; }
+    }
+    function writePref(key, value) {
+      if (!value) return;
+      try { localStorage.setItem(key, value); } catch {}
+    }
+    let cloneMode = false;
+    const scriptBox = document.getElementById("script");
+    const scriptCount = document.getElementById("script-count");
+    function updateScriptCount() {
+      const text = scriptBox.value;
+      const characters = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      scriptCount.textContent = words + " word" + (words === 1 ? "" : "s") +
+        " · " + characters + " character" + (characters === 1 ? "" : "s");
+    }
+    scriptBox.addEventListener("input", updateScriptCount);
+    updateScriptCount();
+    speed.addEventListener("input", () => {
+      speedVal.textContent = Number(speed.value).toFixed(2) + "×";
+    });
+    document.getElementById("use-transcript").addEventListener("click", () => {
+      if (last?.text) {
+        scriptBox.value = last.text;
+        updateScriptCount();
+      }
+    });
+    function setSource(mode) {
+      cloneMode = mode === "clone";
+      document.getElementById("source-preset").setAttribute("aria-pressed",String(!cloneMode));
+      document.getElementById("source-clone").setAttribute("aria-pressed",String(cloneMode));
+      writePref(SOURCE_PREF_KEY, cloneMode ? "clone" : "preset");
+      document.getElementById("source-preset").classList.toggle("on", !cloneMode);
+      document.getElementById("source-clone").classList.toggle("on", cloneMode);
+      document.getElementById("preset-fields").classList.toggle("hidden", cloneMode);
+      document.getElementById("clone-fields").classList.toggle("hidden", !cloneMode);
+      document.getElementById("badge").textContent = cloneMode ? "CPU · XTTS clone" : "CPU · Piper";
+      document.getElementById("subhead").textContent = cloneMode
+        ? "Uses a short clip of a voice you own. First run downloads a ~2 GB model and is slow on CPU."
+        : "Runs Piper on this PC. Voiceovers stay on this machine.";
+      updatePresetInfo();
+    }
+    function updatePresetInfo() {
+      const kokoro = !cloneMode && voiceSelect.value.startsWith("kokoro:");
+      document.getElementById("kokoro-fields").classList.toggle("hidden", !kokoro);
+      if (kokoro && !document.getElementById("layout-voice").classList.contains("hidden")) {
+        document.getElementById("badge").textContent = "CPU · Kokoro";
+        document.getElementById("subhead").textContent = "Kokoro-82M voices, generated locally. Choose the pack finish or keep the raw sound.";
+      } else if (!cloneMode && !document.getElementById("layout-voice").classList.contains("hidden")) {
+        document.getElementById("badge").textContent = "CPU · Piper";
+        document.getElementById("subhead").textContent = "Runs Piper on this PC. Voiceovers stay on this machine.";
+      }
+      const sample = document.getElementById("kokoro-sample");
+      const sampleURL = kokoro ? voiceSelect.selectedOptions[0]?.dataset.sample : "";
+      document.getElementById("kokoro-sample-wrap").classList.toggle("hidden", !sampleURL);
+      if (sample.getAttribute("src") !== (sampleURL || "")) { sample.pause();if (sampleURL) sample.src=sampleURL;else sample.removeAttribute("src"); }
+    }
+    document.getElementById("kokoro-sample").addEventListener("play", function () { document.querySelectorAll("audio").forEach(other => {if(other!==this)other.pause();}); });
+    document.getElementById("source-preset").addEventListener("click", () => setSource("preset"));
+    document.getElementById("source-clone").addEventListener("click", () => setSource("clone"));
+    cloneDrop.addEventListener("click", () => cloneFile.click());
+    cloneDrop.addEventListener("dragover", (e) => { e.preventDefault(); cloneDrop.classList.add("drag"); });
+    cloneDrop.addEventListener("dragleave", () => cloneDrop.classList.remove("drag"));
+    cloneDrop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      cloneDrop.classList.remove("drag");
+      if (e.dataTransfer.files[0]) {
+        cloneFile.files = e.dataTransfer.files;
+        cloneFilename.textContent = e.dataTransfer.files[0].name;
+      }
+    });
+    cloneFile.addEventListener("change", () => {
+      if (cloneFile.files[0]) cloneFilename.textContent = cloneFile.files[0].name;
+    });
+
+    async function loadVoices() {
+      try {
+        const res = await fetch("/api/voices");
+        const payload = await res.json();
+        voiceSelect.innerHTML = "";
+        const cloned = payload.voices.filter((item) => item.kind === "clone");
+        const presets = payload.voices.filter((item) => item.kind !== "clone");
+        function addOptions(parent, items) {
+          items.forEach((item) => {
+            const option = document.createElement("option");
+            option.value = item.id;
+            option.dataset.engine = item.kind;
+            if (item.sample_url) option.dataset.sample = item.sample_url;
+            const mark = item.kind === "clone" ? "" : (item.downloaded ? "" : " (download on first use)");
+            option.textContent = item.label + mark;
+            parent.appendChild(option);
+          });
+        }
+        if (cloned.length) {
+          const group = document.createElement("optgroup");
+          group.label = "Cloned";
+          addOptions(group, cloned);
+          voiceSelect.appendChild(group);
+        }
+        const byLang = {};
+        presets.forEach((item) => {
+          const lang = (item.kind === "kokoro" ? "Kokoro · " : "Piper · ") + (item.lang || "Other");
+          (byLang[lang] = byLang[lang] || []).push(item);
+        });
+        Object.keys(byLang).forEach((lang) => {
+          const group = document.createElement("optgroup");
+          group.label = lang;
+          addOptions(group, byLang[lang]);
+          voiceSelect.appendChild(group);
+        });
+        const preferred = readPref(VOICE_PREF_KEY) || payload.default;
+        const ids = Array.from(voiceSelect.options).map((option) => option.value);
+        if (ids.includes(preferred)) voiceSelect.value = preferred;
+        else if (ids.includes(payload.default)) voiceSelect.value = payload.default;
+        updatePresetInfo();
+      } catch {
+        voiceSelect.innerHTML = '<option value="en_US-lessac-medium">Lessac — US male narrator</option>';
+      }
+    }
+    voiceSelect.addEventListener("change", () => {
+      writePref(VOICE_PREF_KEY, voiceSelect.value);
+      updatePresetInfo();
+      writePref(SOURCE_PREF_KEY, "preset");
+    });
+    if (readPref(SOURCE_PREF_KEY) === "clone") setSource("clone");
+    loadVoices();
+
+    document.getElementById("voice-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      if (voiceGenerating) return;
+      voiceGenerating = true;
+      window.voiceEnhancement?.generationBusy(true);
+      voiceStatus.className = "status";
+      voiceStatus.textContent = cloneMode
+        ? "Cloning on this PC… First run downloads a large model and can take several minutes."
+        : "Generating voice on this PC… First use of a voice downloads the model.";
+      speakBtn.disabled = true;
+      document.getElementById("download-voice-srt").disabled = true;
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        let res;
+        if (cloneMode) {
+          const data = new FormData();
+          data.append("mode", "clone");
+          data.append("text", document.getElementById("script").value);
+          data.append("language", document.getElementById("clone-language").value);
+          data.append("speed", String(Number(speed.value)));
+          data.append("remove_silence", document.getElementById("remove-silence").checked ? "1" : "0");
+          const saveAs = document.getElementById("clone-name").value.trim();
+          if (saveAs) data.append("save_as", saveAs);
+          const pathEl = document.getElementById("clone-path");
+          const localPath = pathEl ? pathEl.value.trim() : "";
+          if (localPath) data.append("path", localPath);
+          else if (cloneFile.files[0]) data.append("file", cloneFile.files[0]);
+          res = await fetch("/api/speak", { method: "POST", body: data });
+        } else {
+          res = await fetch("/api/speak", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              mode: "preset",
+              text: document.getElementById("script").value,
+              voice: voiceSelect.value,
+              kokoro_polish: document.getElementById("kokoro-polish").checked,
+              speed: Number(speed.value),
+              remove_silence: document.getElementById("remove-silence").checked,
+            }),
+          });
+        }
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Voice generation failed");
+        lastVoice = payload;
+        const removed = Number(payload.silence_removed || 0);
+        document.getElementById("voice-meta").textContent =
+          payload.name + " · " + payload.duration.toFixed(1) + "s · " + payload.sample_rate + " Hz · " +
+          payload.speed.toFixed(2) + "×" +
+          (removed > 0.05 ? " · removed " + removed.toFixed(1) + "s silence" : "");
+        document.getElementById("voice-result").innerHTML =
+          '<div class="player-wrap"><strong>Preview</strong>' +
+          '<audio controls autoplay src="' + payload.url + "?t=" + Date.now() + '"></audio>' +
+          '<div class="path">' + payload.path + "</div></div>";
+        document.getElementById("download-audio").disabled = false;
+        document.getElementById("download-voice-srt").disabled = !payload.srt;
+        voiceStatus.textContent = payload.srt
+          ? "Saved MP3 and SRT to the outputs folder."
+          : "Saved to the outputs folder.";
+        if (payload.voice) writePref(VOICE_PREF_KEY, payload.voice);
+        writePref(SOURCE_PREF_KEY, cloneMode ? "clone" : "preset");
+        loadVoices();
+        window.voiceEnhancement?.generated(payload);
+      } catch (err) {
+        voiceStatus.className = "status error";
+        voiceStatus.textContent = err.message;
+      } finally {
+        voiceGenerating = false;
+        if (window.voiceEnhancement) window.voiceEnhancement.generationBusy(false);
+        else speakBtn.disabled = false;
+      }
+    });
+    document.getElementById("download-audio").addEventListener("click", () => {
+      if (!lastVoice?.url) return;
+      const a = document.createElement("a");
+      a.href = lastVoice.url;
+      a.download = lastVoice.name || "voiceover.mp3";
+      a.click();
+    });
+    document.getElementById("download-voice-srt").addEventListener("click", () => {
+      if (!lastVoice?.srt) return;
+      download((lastVoice.name || "voiceover").replace(/\.[^.]+$/, "") + ".srt", lastVoice.srt);
+    });
+
+    const silenceFile = document.getElementById("silence-file");
+    const silenceDrop = document.getElementById("silence-drop");
+    const silenceFilename = document.getElementById("silence-filename");
+    const pauseSlider = document.getElementById("max-pause");
+    const pauseVal = document.getElementById("pause-val");
+    const silenceRun = document.getElementById("silence-run");
+    const silenceStatus = document.getElementById("silence-status");
+    let lastSilence = null;
+    pauseSlider.addEventListener("input", () => {
+      pauseVal.textContent = Number(pauseSlider.value).toFixed(2) + "s";
+    });
+    silenceDrop.addEventListener("click", () => silenceFile.click());
+    silenceDrop.addEventListener("dragover", (e) => { e.preventDefault(); silenceDrop.classList.add("drag"); });
+    silenceDrop.addEventListener("dragleave", () => silenceDrop.classList.remove("drag"));
+    silenceDrop.addEventListener("drop", (e) => {
+      e.preventDefault();
+      silenceDrop.classList.remove("drag");
+      if (e.dataTransfer.files[0]) {
+        silenceFile.files = e.dataTransfer.files;
+        silenceFilename.textContent = e.dataTransfer.files[0].name;
+      }
+    });
+    silenceFile.addEventListener("change", () => {
+      if (silenceFile.files[0]) silenceFilename.textContent = silenceFile.files[0].name;
+    });
+    document.getElementById("silence-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      silenceStatus.className = "status";
+      silenceStatus.textContent = "Finding and shortening long silences…";
+      silenceRun.disabled = true;
+      document.getElementById("download-silence-srt").disabled = true;
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        const data = new FormData();
+        data.append("max_pause", String(Number(pauseSlider.value)));
+        const localPath = document.getElementById("silence-path").value.trim();
+        if (localPath) data.append("path", localPath);
+        else if (silenceFile.files[0]) data.append("file", silenceFile.files[0]);
+        const captionText = document.getElementById("script").value.trim() || (last && last.text) || "";
+        if (captionText) data.append("text", captionText);
+        const res = await fetch("/api/silence", { method: "POST", body: data });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Silence removal failed");
+        lastSilence = payload;
+        document.getElementById("silence-meta").textContent =
+          payload.name + " · " + payload.original_duration.toFixed(1) + "s → " +
+          payload.duration.toFixed(1) + "s · removed " + payload.silence_removed.toFixed(1) + "s";
+        document.getElementById("silence-result").innerHTML =
+          '<div class="player-wrap"><strong>Preview</strong>' +
+          '<audio controls autoplay src="' + payload.url + "?t=" + Date.now() + '"></audio>' +
+          '<div class="path">' + payload.path + "</div></div>";
+        document.getElementById("download-silence").disabled = false;
+        document.getElementById("download-silence-srt").disabled = !payload.srt;
+        if (Number(payload.silence_removed || 0) < 0.05) {
+          silenceStatus.textContent = "This clip was already tight. Left the timing unchanged.";
+        } else if (payload.srt) {
+          silenceStatus.textContent = "Saved MP3 and SRT to the outputs folder.";
+        } else {
+          silenceStatus.textContent = "Saved to the outputs folder.";
+        }
+      } catch (err) {
+        silenceStatus.className = "status error";
+        silenceStatus.textContent = err.message;
+      } finally {
+        silenceRun.disabled = false;
+      }
+    });
+    document.getElementById("download-silence").addEventListener("click", () => {
+      if (!lastSilence?.url) return;
+      const a = document.createElement("a");
+      a.href = lastSilence.url;
+      a.download = lastSilence.name || "silence.mp3";
+      a.click();
+    });
+    document.getElementById("download-silence-srt").addEventListener("click", () => {
+      if (!lastSilence?.srt) return;
+      download((lastSilence.name || "silence").replace(/\.[^.]+$/, "") + ".srt", lastSilence.srt);
+    });
+
+    const musicText = document.getElementById("music-text");
+    const musicCount = document.getElementById("music-count");
+    const musicSeconds = document.getElementById("music-seconds");
+    const musicSecondsVal = document.getElementById("music-seconds-val");
+    const musicStatus = document.getElementById("music-status");
+    const musicRun = document.getElementById("music-run");
+    const musicCues = document.getElementById("music-cues");
+    const sfxText = document.getElementById("sfx-text");
+    const sfxCount = document.getElementById("sfx-count");
+    const sfxSeconds = document.getElementById("sfx-seconds");
+    const sfxSecondsVal = document.getElementById("sfx-seconds-val");
+    const sfxStatus = document.getElementById("sfx-status");
+    const sfxRun = document.getElementById("sfx-run");
+    const sfxCues = document.getElementById("sfx-cues");
+    const videoText = document.getElementById("video-text");
+    const videoCount = document.getElementById("video-count");
+    const videoCues = document.getElementById("video-cues");
+    const videoStatus = document.getElementById("video-status");
+    const videoRun = document.getElementById("video-run");
+    const planShots = document.getElementById("plan-shots");
+    let lastMusic = null;
+    let lastSfx = null;
+    let lastVideo = null;
+    let lastShotPlan = null;
+    let cueTimer = null;
+    function escapeText(value) {
+      return String(value || "").replace(/[&<>"]/g, (ch) => ({
+        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"
+      }[ch]));
+    }
+    function renderCueChips(el, words, emptyText, mood) {
+      const chips = [];
+      if (mood) chips.push('<span class="chip mood">' + escapeText(mood) + "</span>");
+      (words || []).forEach((word) => {
+        chips.push('<span class="chip">' + escapeText(word) + "</span>");
+      });
+      el.innerHTML = chips.length ? chips.join("") : '<span class="muted">' + escapeText(emptyText) + "</span>";
+    }
+    async function refreshCues() {
+      if (location.protocol === "file:") return;
+      const musicValue = musicText.value.trim();
+      const sfxValue = sfxText.value.trim();
+      if (!musicValue && !sfxValue) {
+        renderCueChips(musicCues, [], "Keywords from the script will show here");
+        renderCueChips(sfxCues, [], "Sound words from the script will show here");
+        return;
+      }
+      try {
+        const [musicRes, sfxRes] = await Promise.all([
+          fetch("/api/cues", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: musicValue,
+              music_style: document.getElementById("music-style").value,
+              sfx_style: "auto",
+            }),
+          }),
+          fetch("/api/cues", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              text: sfxValue,
+              music_style: "auto",
+              sfx_style: document.getElementById("sfx-style").value,
+            }),
+          }),
+        ]);
+        const musicPayload = musicRes.ok ? await musicRes.json() : null;
+        const sfxPayload = sfxRes.ok ? await sfxRes.json() : null;
+        renderCueChips(
+          musicCues,
+          musicValue ? (musicPayload?.music?.words || []) : [],
+          musicValue ? "No mood words yet — try spy, jungle, surgery, rain…" : "Keywords from the script will show here",
+          musicValue ? (musicPayload?.music?.mood || "") : ""
+        );
+        renderCueChips(
+          sfxCues,
+          sfxValue ? (sfxPayload?.sfx?.words || []) : [],
+          sfxValue ? "No sound words yet — try rain, footsteps, glass…" : "Sound words from the script will show here",
+          ""
+        );
+      } catch (err) {
+        // Keep the last chips if the analyzer is briefly unavailable.
+      }
+    }
+    function scheduleCues() {
+      clearTimeout(cueTimer);
+      cueTimer = setTimeout(refreshCues, 250);
+    }
+    function updateMusicCount() {
+      const text = musicText.value;
+      const characters = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      musicCount.textContent = words + " word" + (words === 1 ? "" : "s") +
+        " · " + characters + " character" + (characters === 1 ? "" : "s");
+      scheduleCues();
+    }
+    musicText.addEventListener("input", updateMusicCount);
+    document.getElementById("music-style").addEventListener("change", scheduleCues);
+    updateMusicCount();
+    musicSeconds.addEventListener("input", () => {
+      musicSecondsVal.textContent = Number(musicSeconds.value) + "s";
+    });
+    function fillMusicFromScript() {
+      const fromVoice = document.getElementById("script").value.trim();
+      const fromTranscript = last?.text || "";
+      musicText.value = fromVoice || fromTranscript;
+      updateMusicCount();
+    }
+    document.getElementById("use-script-music").addEventListener("click", fillMusicFromScript);
+    document.getElementById("goto-music").addEventListener("click", () => {
+      fillMusicFromScript();
+      showMode("music");
+    });
+    document.getElementById("music-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const liveWords = [...musicCues.querySelectorAll(".chip:not(.mood)")].map((el) => el.textContent).filter(Boolean);
+      musicStatus.className = "status";
+      musicStatus.textContent = liveWords.length
+        ? "Generating music from: " + liveWords.join(", ") + "…"
+        : "Generating music on this PC… First run downloads MusicGen and can take several minutes.";
+      musicRun.disabled = true;
+      document.getElementById("download-music").disabled = true;
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        const mix = document.getElementById("music-mix").checked;
+        if (mix && !lastVoice?.path) {
+          throw new Error("Generate a voiceover first, then mix music under it.");
+        }
+        const res = await fetch("/api/music", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: musicText.value,
+            style: document.getElementById("music-style").value,
+            seconds: Number(musicSeconds.value),
+            mix_voice: mix ? lastVoice.path : "",
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Music generation failed");
+        lastMusic = payload;
+        renderCueChips(musicCues, payload.cues || [], "No mood words found", payload.mood || "");
+        const cueLine = (payload.cues && payload.cues.length)
+          ? "Using: " + payload.cues.join(", ") + (payload.mood ? " · " + payload.mood : "")
+          : (payload.mood ? "Mood: " + payload.mood : "Preview");
+        document.getElementById("music-meta").textContent =
+          payload.name + " · " + payload.duration.toFixed(1) + "s · " + payload.sample_rate + " Hz" +
+          (payload.mixed ? " · mixed under voiceover" : "");
+        document.getElementById("music-result").innerHTML =
+          '<div class="player-wrap"><strong>' + escapeText(cueLine) + "</strong>" +
+          '<audio controls autoplay src="' + payload.url + "?t=" + Date.now() + '"></audio>' +
+          (payload.prompt ? '<div class="path">' + escapeText(payload.prompt) + "</div>" : "") +
+          '<div class="path">' + escapeText(payload.path) + "</div></div>";
+        document.getElementById("download-music").disabled = false;
+        musicStatus.textContent = payload.mixed
+          ? "Saved a mixed MP3 to the outputs folder."
+          : "Saved background music from those keywords.";
+      } catch (err) {
+        musicStatus.className = "status error";
+        musicStatus.textContent = err.message;
+      } finally {
+        musicRun.disabled = false;
+      }
+    });
+    document.getElementById("download-music").addEventListener("click", () => {
+      if (!lastMusic?.url) return;
+      const a = document.createElement("a");
+      a.href = lastMusic.url;
+      a.download = lastMusic.name || "background.mp3";
+      a.click();
+    });
+
+    function updateSfxCount() {
+      const text = sfxText.value;
+      const characters = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      sfxCount.textContent = words + " word" + (words === 1 ? "" : "s") +
+        " · " + characters + " character" + (characters === 1 ? "" : "s");
+      scheduleCues();
+    }
+    sfxText.addEventListener("input", updateSfxCount);
+    document.getElementById("sfx-style").addEventListener("change", scheduleCues);
+    updateSfxCount();
+    sfxSeconds.addEventListener("input", () => {
+      sfxSecondsVal.textContent = Number(sfxSeconds.value) + "s";
+    });
+    function fillSfxFromScript() {
+      const fromVoice = document.getElementById("script").value.trim();
+      const fromTranscript = last?.text || "";
+      sfxText.value = fromVoice || fromTranscript;
+      updateSfxCount();
+    }
+    document.getElementById("use-script-sfx").addEventListener("click", fillSfxFromScript);
+    document.getElementById("goto-sfx").addEventListener("click", () => {
+      fillSfxFromScript();
+      showMode("sfx");
+    });
+    document.getElementById("sfx-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const liveWords = [...sfxCues.querySelectorAll(".chip")].map((el) => el.textContent).filter(Boolean);
+      sfxStatus.className = "status";
+      sfxStatus.textContent = liveWords.length
+        ? "Generating sound effects from: " + liveWords.join(", ") + "…"
+        : "Generating sound effects on this PC… First run downloads AudioLDM and can take a few minutes.";
+      sfxRun.disabled = true;
+      document.getElementById("download-sfx").disabled = true;
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        const mix = document.getElementById("sfx-mix").checked;
+        if (mix && !lastVoice?.path) {
+          throw new Error("Generate a voiceover first, then layer the effect over it.");
+        }
+        const res = await fetch("/api/sfx", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            text: sfxText.value,
+            style: document.getElementById("sfx-style").value,
+            seconds: Number(sfxSeconds.value),
+            mix_voice: mix ? lastVoice.path : "",
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Sound effect generation failed");
+        lastSfx = payload;
+        renderCueChips(sfxCues, payload.cues || [], "No sound words found");
+        const clips = Array.isArray(payload.clips) && payload.clips.length ? payload.clips : [payload];
+        const players = clips.map((clip, index) => {
+          const title = clip.word || clip.label || ("Clip " + (index + 1));
+          const src = (clip.url || payload.url) + "?t=" + Date.now() + "-" + index;
+          return '<div class="player-wrap"><strong>' + escapeText(title) + "</strong>" +
+            '<audio controls' + (index === 0 && !payload.mixed ? " autoplay" : "") + ' src="' + src + '"></audio>' +
+            (clip.prompt ? '<div class="path">' + escapeText(clip.prompt) + "</div>" : "") +
+            '<div class="path">' + escapeText(clip.path || payload.path) + "</div></div>";
+        });
+        if (payload.mixed) {
+          players.unshift(
+            '<div class="player-wrap"><strong>Mixed over voiceover</strong>' +
+            '<audio controls autoplay src="' + payload.url + "?t=" + Date.now() + '"></audio>' +
+            '<div class="path">' + escapeText(payload.path) + "</div></div>"
+          );
+        }
+        document.getElementById("sfx-meta").textContent =
+          (payload.cues && payload.cues.length ? payload.cues.join(", ") + " · " : "") +
+          payload.name + " · " + payload.duration.toFixed(1) + "s" +
+          (payload.mixed ? " · layered over voiceover" : "");
+        document.getElementById("sfx-result").innerHTML = players.join("");
+        document.getElementById("download-sfx").disabled = false;
+        sfxStatus.textContent = payload.mixed
+          ? "Saved a mixed MP3 plus " + clips.length + " effect clip" + (clips.length === 1 ? "" : "s") + "."
+          : "Saved " + clips.length + " sound effect" + (clips.length === 1 ? "" : "s") + " from those words.";
+      } catch (err) {
+        sfxStatus.className = "status error";
+        sfxStatus.textContent = err.message;
+      } finally {
+        sfxRun.disabled = false;
+      }
+    });
+    document.getElementById("download-sfx").addEventListener("click", () => {
+      if (!lastSfx?.url) return;
+      const a = document.createElement("a");
+      a.href = lastSfx.url;
+      a.download = lastSfx.name || "sfx.mp3";
+      a.click();
+    });
+
+    function fillVideoFrom(text) {
+      videoText.value = text || "";
+      updateVideoCount();
+    }
+    function updateVideoCount() {
+      const text = videoText.value;
+      const characters = text.length;
+      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+      videoCount.textContent = words + " word" + (words === 1 ? "" : "s") +
+        " · " + characters + " character" + (characters === 1 ? "" : "s");
+      if (lastShotPlan && lastShotPlan.script !== text.trim()) {
+        lastShotPlan = null;
+        renderCueChips(videoCues, [], "Narration changed — plan the shots again");
+      }
+      scheduleCues();
+    }
+    videoText.addEventListener("input", updateVideoCount);
+    updateVideoCount();
+    function fillVideoFromScript() {
+      fillVideoFrom(document.getElementById("script").value.trim() || last?.text || "");
+    }
+    document.getElementById("use-script-video").addEventListener("click", fillVideoFromScript);
+    document.getElementById("goto-video").addEventListener("click", () => {
+      fillVideoFromScript();
+      showMode("video");
+    });
+    document.getElementById("plan-shots").addEventListener("click", async () => {
+      videoStatus.className = "status";
+      videoStatus.textContent = "Planning footage searches from your narration…";
+      planShots.disabled = true;
+      videoRun.disabled = true;
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        const script = videoText.value.trim();
+        if (!script) throw new Error("Paste the narration so the shot planner can plan matching shots.");
+        const words = script.trim() ? script.trim().split(/\s+/).length : 1;
+        const shotCount = Math.min(24, Math.max(10, Math.round(words / 10) + 8));
+        const res = await fetch("/api/footage/plan", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: script, shots: shotCount }),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Could not plan shots");
+        lastShotPlan = {
+          script,
+          queries: payload.queries || [],
+          shots: payload.shots || [],
+          tone: payload.tone || "",
+          source: payload.source || "",
+        };
+        renderCueChips(
+          videoCues,
+          lastShotPlan.queries,
+          "the shot planner did not return shots",
+          lastShotPlan.tone
+        );
+        videoStatus.textContent = "Planned " + lastShotPlan.queries.length + " footage searches. Build the video to find matching clips.";
+      } catch (err) {
+        videoStatus.className = "status error";
+        videoStatus.textContent = err.message;
+      } finally {
+        planShots.disabled = false;
+        videoRun.disabled = false;
+      }
+    });
+    async function loadFootageKeys() {
+      try {
+        const res = await fetch("/api/footage/keys");
+        const payload = await res.json();
+        if (!res.ok) return;
+        videoStatus.textContent = payload.ready
+          ? "Keys saved. Generate a voiceover, then build the video."
+          : "Needs a voiceover plus at least one free API key.";
+        if (payload.pixabay) document.getElementById("pixabay-key").placeholder = "Pixabay key saved on this PC";
+        if (payload.pexels) document.getElementById("pexels-key").placeholder = "Pexels key saved on this PC";
+      } catch (err) {
+        // Keys stay blank until the user saves them.
+      }
+    }
+    loadFootageKeys();
+    document.getElementById("save-footage-keys").addEventListener("click", async () => {
+      videoStatus.className = "status";
+      try {
+        const res = await fetch("/api/footage/keys", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            pixabay: document.getElementById("pixabay-key").value,
+            pexels: document.getElementById("pexels-key").value,
+          }),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Could not save keys");
+        document.getElementById("pixabay-key").value = "";
+        document.getElementById("pexels-key").value = "";
+        videoStatus.textContent = payload.ready
+          ? "Keys saved on this PC. They are not uploaded anywhere else."
+          : "Saved, but both fields were empty. Paste a Pixabay or Pexels key.";
+        loadFootageKeys();
+      } catch (err) {
+        videoStatus.className = "status error";
+        videoStatus.textContent = err.message;
+      }
+    });
+    document.getElementById("video-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const script = videoText.value.trim();
+      const reusePlan = lastShotPlan && lastShotPlan.script === script && (lastShotPlan.queries || []).length >= 2;
+      videoStatus.className = "status";
+      videoStatus.textContent = reusePlan
+        ? "Fetching stock clips for the shot planner's shots and merging them with the voiceover…"
+        : "Finding clips that match your narration…";
+      videoRun.disabled = true;
+      planShots.disabled = true;
+      document.getElementById("download-video").disabled = true;
+      document.getElementById("download-credits").disabled = true;
+      try {
+        if (location.protocol === "file:") {
+          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
+        }
+        if (!lastVoice?.path) {
+          throw new Error("Generate a voiceover first, then build the video.");
+        }
+        const pixabay = document.getElementById("pixabay-key").value.trim();
+        const pexels = document.getElementById("pexels-key").value.trim();
+        if (pixabay || pexels) {
+          await fetch("/api/footage/keys", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ pixabay, pexels }),
+          });
+        }
+        const body = {
+          text: videoText.value,
+          voice_path: lastVoice.path,
+          aspect: document.getElementById("video-aspect").value,
+        };
+        if (reusePlan) {
+          body.queries = lastShotPlan.queries;
+          body.tone = lastShotPlan.tone || "";
+          if (lastShotPlan.shots && lastShotPlan.shots.length) body.shots = lastShotPlan.shots;
+        }
+        const res = await fetch("/api/footage", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+        });
+        const payload = await res.json();
+        if (!res.ok) throw new Error(payload.error || "Video build failed");
+        lastVideo = payload;
+        lastShotPlan = {
+          script,
+          queries: payload.queries || [],
+          shots: lastShotPlan && lastShotPlan.script === script ? (lastShotPlan.shots || []) : [],
+          tone: payload.tone || "",
+          source: payload.planner || "",
+        };
+        renderCueChips(videoCues, payload.queries || [], "No visual shots found", payload.tone || "");
+        const clipLines = (payload.clips || []).map((clip) =>
+          escapeText(
+            (clip.source || "") + " · " + (clip.query || "") +
+            (clip.duration ? " · " + clip.duration + "s" : "") +
+            " · " + (clip.user || "")
+          )
+        ).join("<br>");
+        const clipCount = payload.clip_count || (payload.clips || []).length;
+        document.getElementById("video-meta").textContent =
+          payload.name + " · " + payload.duration.toFixed(1) + "s · " + clipCount + " clips · " + payload.aspect;
+        document.getElementById("video-result").innerHTML =
+          '<div class="player-wrap"><strong>Preview</strong>' +
+          '<video controls autoplay src="' + payload.url + "?t=" + Date.now() + '" style="width:100%;margin-top:16px;max-height:70vh;background:#000"></video>' +
+          (clipLines ? '<div class="path">' + clipLines + "</div>" : "") +
+          '<div class="path">' + escapeText(payload.path) + "</div></div>";
+        document.getElementById("download-video").disabled = false;
+        document.getElementById("download-credits").disabled = !payload.credits_url;
+        const plannerLabel = payload.planner === "keywords"
+          ? "Used keyword shots because the shot planner was unavailable."
+          : "Planned short clips from your narration.";
+        videoStatus.textContent = plannerLabel + " Cut " + clipCount +
+          " unique clips to the voiceover. Saved the MP4 and a credits file.";
+      } catch (err) {
+        videoStatus.className = "status error";
+        videoStatus.textContent = err.message;
+      } finally {
+        videoRun.disabled = false;
+        planShots.disabled = false;
+      }
+    });
+    document.getElementById("download-video").addEventListener("click", () => {
+      if (!lastVideo?.url) return;
+      const a = document.createElement("a");
+      a.href = lastVideo.url;
+      a.download = lastVideo.name || "video.mp4";
+      a.click();
+    });
+    document.getElementById("download-credits").addEventListener("click", () => {
+      if (!lastVideo?.credits_url) return;
+      const a = document.createElement("a");
+      a.href = lastVideo.credits_url;
+      a.download = (lastVideo.name || "video").replace(/\.[^.]+$/, "") + ".credits.txt";
+      a.click();
+    });
+    let initialWorkspace='voice';
+    try { const saved=localStorage.getItem('voiceStudio.workspace');if(['voice','enhance','transcribe','music','sfx','video','silence'].includes(saved))initialWorkspace=saved; } catch {}
+    showMode(initialWorkspace);
+  </script>
+  <script src="{{ url_for('static', filename='studio.js') }}" defer></script>
+</body>
+</html>
