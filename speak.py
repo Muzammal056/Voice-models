@@ -3,14 +3,16 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 
-from voice import DEFAULT_VOICE, VOICES, LocalSpeaker
+from voice import DEFAULT_VOICE
+from kokoro_voice import KokoroSpeaker, list_kokoro_voices
 
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Generate a voiceover MP3 locally (Piper presets, or clone a voice you own)."
+        description="Generate a voiceover MP3 locally (Kokoro voices, or clone a voice you own)."
     )
     parser.add_argument("text", nargs="?", help="Script to speak. Omit if using --file.")
     parser.add_argument(
@@ -20,7 +22,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--voice",
         default=DEFAULT_VOICE,
-        help="Voice id from --list-voices (Piper preset or a saved clone).",
+        help="Voice id from --list-voices (Kokoro voice or a saved clone).",
     )
     parser.add_argument(
         "--speed",
@@ -36,7 +38,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--list-voices",
         action="store_true",
-        help="Print available Piper voices and exit.",
+        help="Print available Kokoro voices and exit.",
     )
     parser.add_argument(
         "--clone",
@@ -52,10 +54,12 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Keep long pauses in the generated voiceover.",
     )
+    parser.add_argument("--remove-silence", action="store_true", help="Opt in to shortening pauses; natural speech is kept by default.")
     return parser.parse_args()
 
 
 def main() -> None:
+    if hasattr(sys.stdout, "reconfigure"): sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     args = parse_args()
     if args.list_voices:
         from clone import list_cloned_voices
@@ -66,7 +70,7 @@ def main() -> None:
             for item in cloned:
                 print(f"  {item['id']:30}  {item['label']}")
             print("Preset")
-        for item in VOICES:
+        for item in list_kokoro_voices():
             prefix = "  " if cloned else ""
             print(f"{prefix}{item['id']:30}  {item['label']}")
         return
@@ -78,7 +82,7 @@ def main() -> None:
     else:
         raise SystemExit("Pass script text, or --file path, or --list-voices.")
 
-    keep_silence = bool(args.keep_silence)
+    keep_silence = bool(args.keep_silence) or not args.remove_silence
 
     if args.clone:
         from clone import VoiceCloner, save_cloned_voice
@@ -116,8 +120,8 @@ def main() -> None:
                 remove_silence=not keep_silence,
             )
         else:
-            engine = LocalSpeaker()
-            print(f"Loading Piper voice '{args.voice}' (downloads once, then stays local)...")
+            engine = KokoroSpeaker()
+            print(f"Loading Kokoro voice '{args.voice}' (downloads once, then stays local)...")
             result = engine.speak(
                 script,
                 voice_id=args.voice,

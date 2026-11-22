@@ -15,13 +15,9 @@ from werkzeug.exceptions import HTTPException, RequestEntityTooLarge
 
 from captions import captions_from_script, rechunk_transcript, save_srt
 from clone import CLONE_LANGUAGES, VoiceCloner, get_cloned_voice, list_cloned_voices, save_cloned_voice
-from cues import extract_music_cues, extract_sfx_cues, analyze_script
-from music import DEFAULT_SECONDS, MUSIC_STYLES, MusicGenerator, clamp_seconds, prompt_from_text
-from sfx import DEFAULT_SECONDS as SFX_DEFAULT_SECONDS
-from sfx import SFX_STYLES, SfxGenerator, clamp_sfx_seconds, sfx_prompt_from_text
 from silence import DEFAULT_MAX_PAUSE, clamp_max_pause, remove_silence_file
 from transcriber import MODEL_SIZES, LocalTranscriber, SUPPORTED_MEDIA, write_outputs
-from voice import DEFAULT_VOICE, LocalSpeaker, list_voices, VOICES
+from voice import DEFAULT_VOICE
 from audio_library import VoiceLibrary
 from kokoro_voice import KokoroSpeaker, list_kokoro_voices
 import enhancement
@@ -29,7 +25,7 @@ import enhancement
 ROOT = Path(__file__).resolve().parent
 OUTPUT_DIR = ROOT / "outputs"
 UPLOAD_DIR = ROOT / "uploads"
-voice_library = VoiceLibrary(OUTPUT_DIR, ROOT / "voice-history.json", [v["id"].split("-")[1] for v in VOICES])
+voice_library = VoiceLibrary(OUTPUT_DIR, ROOT / "voice-history.json", ['25hours_single', 'aegis_female', 'aivars', 'alan', 'alba', 'ald', 'alex', 'alma', 'amir', 'amy', 'anna', 'antton', 'arjun', 'artur', 'bass', 'berta', 'bryce', 'bui', 'cadu', 'carlfm', 'chaowen', 'chitwan', 'claude', 'cori', 'daniela', 'danny', 'darkman', 'davefx', 'denis', 'dfki', 'dimitar', 'dmitri', 'edon', 'edresson', 'eva_k', 'faber', 'fasih', 'ganji', 'ganji_adabi', 'gilles', 'gor', 'gosia', 'gwryw_gogleddol', 'gyro', 'harri', 'hfc_female', 'hfc_male', 'huayan', 'imre', 'irina', 'iseke', 'jeff', 'jenny_dioco', 'jirka', 'joe', 'john', 'joy', 'kareem', 'karlsson', 'kasandra', 'kathleen', 'kerstin', 'kristin', 'kss', 'kusal', 'lada', 'lanfrica', 'lessac', 'lili', 'lisa', 'ljspeech', 'maider', 'marylux', 'maya', 'mc_speech', 'meera', 'mihai', 'mike', 'mls_10246', 'mls_1840', 'mls_5809', 'mls_6892', 'mls_7432', 'mls_9972', 'mykyta', 'nathalie', 'natia', 'news_tts', 'norman', 'northern_english_male', 'nst', 'oleksa', 'padmavathi', 'paola', 'pavoque', 'pim', 'pratham', 'priyamvada', 'ramona', 'rapunzelina', 'raya', 'rdh', 'reginute1', 'reza_ibrahim', 'riccardo', 'rohan', 'ronnie', 'ruslan', 'ryan', 'salka', 'sam', 'saspeech', 'serena', 'siwis', 'southern_english_female', 'steinn', 'talesyntese', 'tetiana', 'thorsten', 'tom', 'tsync2', 'tugão', 'ugla', 'upc_ona', 'upc_pau', 'vais1000', 'venkatesh', 'xiao_ya'])
 
 app = Flask(__name__)
 app.config["MAX_CONTENT_LENGTH"] = 2 * 1024 * 1024 * 1024  # 2 GB
@@ -40,16 +36,10 @@ app.config["PROPAGATE_EXCEPTIONS"] = False
 logging.basicConfig(level=logging.INFO)
 _engines: dict[str, LocalTranscriber] = {}
 _engine_lock = threading.Lock()
-_speaker: LocalSpeaker | None = None
-_speaker_lock = threading.Lock()
 _kokoro: KokoroSpeaker | None = None
 _kokoro_lock = threading.Lock()
 _cloner: VoiceCloner | None = None
 _cloner_lock = threading.Lock()
-_music: MusicGenerator | None = None
-_music_lock = threading.Lock()
-_sfx: SfxGenerator | None = None
-_sfx_lock = threading.Lock()
 
 LANGUAGES = [
     ("auto", "Auto detect"),
@@ -74,12 +64,6 @@ def get_engine(model_size: str) -> LocalTranscriber:
         return _engines[model_size]
 
 
-def get_speaker() -> LocalSpeaker:
-    global _speaker
-    with _speaker_lock:
-        if _speaker is None:
-            _speaker = LocalSpeaker()
-        return _speaker
 
 
 def get_kokoro() -> KokoroSpeaker:
@@ -98,20 +82,8 @@ def get_cloner() -> VoiceCloner:
         return _cloner
 
 
-def get_music() -> MusicGenerator:
-    global _music
-    with _music_lock:
-        if _music is None:
-            _music = MusicGenerator()
-        return _music
 
 
-def get_sfx() -> SfxGenerator:
-    global _sfx
-    with _sfx_lock:
-        if _sfx is None:
-            _sfx = SfxGenerator()
-        return _sfx
 
 
 def api_error(message: str, status: int = 400):
@@ -250,10 +222,6 @@ def index():
         models=MODEL_SIZES,
         languages=LANGUAGES,
         clone_languages=CLONE_LANGUAGES,
-        music_styles=MUSIC_STYLES,
-        music_seconds=DEFAULT_SECONDS,
-        sfx_styles=SFX_STYLES,
-        sfx_seconds=SFX_DEFAULT_SECONDS,
     )
 
 
@@ -330,8 +298,7 @@ def transcribe():
 @app.get("/api/voices")
 def voices():
     cloned = list_cloned_voices()
-    piper = [{**item, "kind": "piper"} for item in list_voices()]
-    return jsonify({"default": DEFAULT_VOICE, "voices": cloned + list_kokoro_voices() + piper})
+    return jsonify({"default": DEFAULT_VOICE, "voices": cloned + list_kokoro_voices()})
 
 
 @app.get("/api/kokoro-samples/<voice>")
@@ -361,7 +328,7 @@ def speak():
             payload.get("remove_silence")
             if payload.get("remove_silence") is not None
             else request.form.get("remove_silence"),
-            True,
+            False,
         )
 
         voice_id = str(payload.get("voice") or request.form.get("voice") or "").strip()
@@ -416,10 +383,7 @@ def speak():
                 result = get_kokoro().speak(text, voice_id=voice_id, speed=speed,
                     out_dir=OUTPUT_DIR, remove_silence=remove_silence, polish=polish)
             else:
-                result = get_speaker().speak(
-                    text, voice_id=voice_id, speed=speed, out_dir=OUTPUT_DIR,
-                    remove_silence=remove_silence,
-                )
+                raise ValueError("Choose a Kokoro voice or a saved clone.")
 
         srt, srt_path = _captions_for(result.path, script=text)
         data = {
@@ -427,7 +391,7 @@ def speak():
                 "path": str(result.path),
                 "url": f"/outputs/{result.path.name}",
                 "voice": result.voice,
-                "engine": getattr(result, "engine", "xtts" if saved or mode == "clone" else "piper"),
+                "engine": getattr(result, "engine", "xtts" if saved or mode == "clone" else "kokoro"),
                 "polished": bool(getattr(result, "polished", False)),
                 "raw_url": "/outputs/" + result.raw_path.relative_to(OUTPUT_DIR).as_posix() if getattr(result, "raw_path", None) else None,
                 "lossless_path": str(result.path.with_suffix(".wav")) if result.path.with_suffix(".wav").is_file() else None,
@@ -523,123 +487,10 @@ def enhance_progress(job):
     return jsonify(result)
 
 
-@app.post("/api/music")
-def music():
-    try:
-        payload = request.get_json(silent=True) or {}
-        text = str(payload.get("text") or "").strip()
-        style = str(payload.get("style") or "auto").strip().lower()
-        try:
-            seconds = clamp_seconds(
-                payload.get("seconds") if payload.get("seconds") is not None else DEFAULT_SECONDS
-            )
-        except (TypeError, ValueError):
-            return api_error("Duration must be a number.")
-        mix_raw = str(payload.get("mix_voice") or "").strip().strip('"')
-        mix_voice: Path | None = Path(mix_raw) if mix_raw else None
-        if mix_raw and (mix_voice is None or not mix_voice.exists()):
-            return api_error("That voiceover file was not found to mix under.")
-        result = get_music().generate(
-            text,
-            style=style,
-            seconds=seconds,
-            out_dir=OUTPUT_DIR,
-            mix_voice=mix_voice,
-        )
-        cues = extract_music_cues(text, style)
-        return jsonify(
-            {
-                "name": result.path.name,
-                "path": str(result.path),
-                "url": f"/outputs/{result.path.name}",
-                "voice": result.voice,
-                "duration": float(result.duration),
-                "sample_rate": int(result.sample_rate),
-                "style": style,
-                "mood": cues.get("mood"),
-                "cues": cues.get("words") or [],
-                "label": cues.get("label") or "",
-                "prompt": prompt_from_text(text, style),
-                "mixed": bool(mix_voice),
-            }
-        )
-    except ValueError as exc:
-        return api_error(str(exc), 400)
-    except Exception as exc:
-        app.logger.error("Music generation failed:\n%s", traceback.format_exc())
-        return api_error(str(exc) or "Music generation failed", 500)
 
 
-@app.post("/api/sfx")
-def sfx():
-    try:
-        payload = request.get_json(silent=True) or {}
-        text = str(payload.get("text") or "").strip()
-        style = str(payload.get("style") or "auto").strip().lower()
-        try:
-            seconds = clamp_sfx_seconds(
-                payload.get("seconds") if payload.get("seconds") is not None else SFX_DEFAULT_SECONDS
-            )
-        except (TypeError, ValueError):
-            return api_error("Duration must be a number.")
-        mix_raw = str(payload.get("mix_voice") or "").strip().strip('"')
-        mix_voice: Path | None = Path(mix_raw) if mix_raw else None
-        if mix_raw and (mix_voice is None or not mix_voice.exists()):
-            return api_error("That voiceover file was not found to mix over.")
-        batch = get_sfx().generate(
-            text,
-            style=style,
-            seconds=seconds,
-            out_dir=OUTPUT_DIR,
-            mix_voice=mix_voice,
-        )
-        result = batch["primary"]
-        cues = batch.get("cues") or extract_sfx_cues(text, style)
-        clips = []
-        for item in batch.get("clips") or []:
-            clip_result = item["result"]
-            clips.append(
-                {
-                    "id": item.get("id"),
-                    "word": item.get("word"),
-                    "prompt": item.get("prompt"),
-                    "name": clip_result.path.name,
-                    "path": str(clip_result.path),
-                    "url": f"/outputs/{clip_result.path.name}",
-                    "duration": float(clip_result.duration),
-                    "sample_rate": int(clip_result.sample_rate),
-                }
-            )
-        return jsonify(
-            {
-                "name": result.path.name,
-                "path": str(result.path),
-                "url": f"/outputs/{result.path.name}",
-                "voice": result.voice,
-                "duration": float(result.duration),
-                "sample_rate": int(result.sample_rate),
-                "style": style,
-                "cues": cues.get("words") or [],
-                "label": cues.get("label") or "",
-                "prompt": sfx_prompt_from_text(text, style),
-                "clips": clips,
-                "mixed": bool(batch.get("mixed")),
-            }
-        )
-    except ValueError as exc:
-        return api_error(str(exc), 400)
-    except Exception as exc:
-        app.logger.error("Sound effect generation failed:\n%s", traceback.format_exc())
-        return api_error(str(exc) or "Sound effect generation failed", 500)
 
 
-@app.post("/api/cues")
-def cues():
-    payload = request.get_json(silent=True) or {}
-    text = str(payload.get("text") or "").strip()
-    music_style = str(payload.get("music_style") or "auto").strip().lower()
-    sfx_style = str(payload.get("sfx_style") or "auto").strip().lower()
-    return jsonify(analyze_script(text, music_style, sfx_style))
 
 
 def _output_mime(name: str) -> str:

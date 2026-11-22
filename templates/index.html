@@ -350,8 +350,8 @@
 </head>
 <body>
   <div class="app">
-    <header><div class="studio-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div><strong>Voice Studio</strong><small>LOCAL PRODUCTION WORKSPACE</small></div></div><nav class="modes" aria-label="Workspace"><button type="button" class="mode on" id="mode-voice">Voice</button><button type="button" class="mode" id="mode-enhance">Enhance</button><button type="button" class="mode" id="mode-transcribe">Transcribe</button><button type="button" class="mode" id="mode-music">Music</button><button type="button" class="mode" id="mode-sfx">Sound FX</button><button type="button" class="mode" id="mode-silence">Silence</button></nav><div class="session-chip"><span class="dot"></span>Local workspace</div></header>
-    <div class="workspace-title"><div><span class="eyebrow">A LITTLE MORE LIFE IN EVERY WORD</span><h1 id="heading">Voiceover studio</h1><p id="subhead">Create narration, refine your sound, and download your finished audio.</p></div><span class="pill" id="badge">CPU · Piper</span></div>
+    <header><div class="studio-brand"><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span><div><strong>Voice Studio</strong><small>LOCAL PRODUCTION WORKSPACE</small></div></div><nav class="modes" aria-label="Workspace"><button type="button" class="mode on" id="mode-voice">Voice</button><button type="button" class="mode" id="mode-enhance">Enhance</button><button type="button" class="mode" id="mode-transcribe">Transcribe</button><button type="button" class="mode" id="mode-silence">Silence</button></nav><div class="session-chip"><span class="dot"></span>Local workspace</div></header>
+    <div class="workspace-title"><div><span class="eyebrow">A LITTLE MORE LIFE IN EVERY WORD</span><h1 id="heading">Voiceover studio</h1><p id="subhead">Create narration, refine your sound, and download your finished audio.</p></div><span class="pill" id="badge">CPU · Kokoro</span></div>
     <div class="layout hidden" id="layout-transcribe">
       <aside>
         <form id="form">
@@ -447,14 +447,14 @@
             <span id="speed-val">1.00×</span>
           </div>
           <label class="check">
-            <input id="remove-silence" type="checkbox" checked />
+            <input id="remove-silence" type="checkbox" />
             <span>
-              Remove extra silence
+              Shorten long pauses (optional)
               <small>Cuts dead air between words. No leftover gap unless you raise the pause slider.</small>
             </span>
           </label>
           <button class="run" id="speak" type="submit">Generate voiceover</button>
-          <div class="script-shortcuts"><button class="secondary" id="goto-music" type="button">Music</button><button class="secondary" id="goto-sfx" type="button">Sound effects</button></div>
+
           <div class="status" id="voice-status">First use of a voice downloads the model, then it stays on this PC.</div>
         </form>
       </aside>
@@ -509,96 +509,6 @@
   </main>
 </section>
 
-    <div class="layout hidden" id="layout-music">
-      <aside>
-        <form id="music-form">
-          <div class="label-row">
-            <label for="music-text">Script or topic</label>
-            <span class="script-count" id="music-count">0 words · 0 characters</span>
-          </div>
-          <textarea id="music-text" placeholder="Paste the narration. Words like spy, jungle, or surgery set the music mood…"></textarea>
-          <div class="cues" id="music-cues"><span class="muted">Keywords from the script will show here</span></div>
-          <button class="secondary" id="use-script-music" type="button">Use voice script</button>
-          <label for="music-style">Style</label>
-          <select id="music-style">
-            {% for code, label in music_styles %}
-            <option value="{{ code }}">{{ label }}</option>
-            {% endfor %}
-          </select>
-          <label for="music-seconds">Length</label>
-          <div class="speed">
-            <input id="music-seconds" type="range" min="6" max="15" step="1" value="{{ music_seconds }}" />
-            <span id="music-seconds-val">{{ music_seconds }}s</span>
-          </div>
-          <p class="hint">Uses mood and setting words from the script, not the full narration. First run downloads MusicGen (~2 GB). On CPU, 8 seconds can take several minutes.</p>
-          <label class="check">
-            <input id="music-mix" type="checkbox" />
-            <span>
-              Mix under last voiceover
-              <small>Loops the bed quietly under the last generated voice MP3.</small>
-            </span>
-          </label>
-          <button class="run" id="music-run" type="submit">Generate background music</button>
-          <div class="status" id="music-status">Uses the free MusicGen small model on this PC.</div>
-        </form>
-      </aside>
-      <main>
-        <div class="toolbar">
-          <div class="meta" id="music-meta">No music yet</div>
-          <div class="actions">
-            <button type="button" id="download-music" disabled>Download MP3</button>
-          </div>
-        </div>
-        <div class="voice-result" id="music-result">
-          <div class="empty">Paste a script. Music is generated from the mood words it finds, such as spy, jungle, or surgery.</div>
-        </div>
-      </main>
-    </div>
-    <div class="layout hidden" id="layout-sfx">
-      <aside>
-        <form id="sfx-form">
-          <div class="label-row">
-            <label for="sfx-text">Sound or scene</label>
-            <span class="script-count" id="sfx-count">0 words · 0 characters</span>
-          </div>
-          <textarea id="sfx-text" placeholder="glass shatter, rain on a roof, or paste a scene from the script…"></textarea>
-          <div class="cues" id="sfx-cues"><span class="muted">Sound words from the script will show here</span></div>
-          <button class="secondary" id="use-script-sfx" type="button">Use voice script</button>
-          <label for="sfx-style">Type</label>
-          <select id="sfx-style">
-            {% for code, label in sfx_styles %}
-            <option value="{{ code }}">{{ label }}</option>
-            {% endfor %}
-          </select>
-          <label for="sfx-seconds">Length</label>
-          <div class="speed">
-            <input id="sfx-seconds" type="range" min="2" max="8" step="1" value="{{ sfx_seconds }}" />
-            <span id="sfx-seconds-val">{{ sfx_seconds }}s</span>
-          </div>
-          <p class="hint">Finds event words in script order (rain, footsteps, glass…) and writes up to 3 foley clips. First run downloads AudioLDM (~1.5 GB).</p>
-          <label class="check">
-            <input id="sfx-mix" type="checkbox" />
-            <span>
-              Layer over last voiceover
-              <small>Places the effect on top of the last generated voice MP3.</small>
-            </span>
-          </label>
-          <button class="run" id="sfx-run" type="submit">Generate sound effect</button>
-          <div class="status" id="sfx-status">Uses the free AudioLDM small model on this PC.</div>
-        </form>
-      </aside>
-      <main>
-        <div class="toolbar">
-          <div class="meta" id="sfx-meta">No sound effect yet</div>
-          <div class="actions">
-            <button type="button" id="download-sfx" disabled>Download MP3</button>
-          </div>
-        </div>
-        <div class="voice-result" id="sfx-result">
-          <div class="empty">Paste a script. Sound effects are generated from event words it finds, such as rain, footsteps, or glass.</div>
-        </div>
-      </main>
-    </div>
     <div class="layout hidden" id="layout-silence">
       <aside>
         <form id="silence-form">
@@ -695,11 +605,9 @@
 
     function showMode(mode) {
       const screens = {
-        voice: ["Voiceover studio", "Create narration, refine your sound, and download your finished audio.", "CPU · Piper"],
+        voice: ["Voiceover studio", "Create narration, refine your sound, and download your finished audio.", "CPU · Kokoro"],
         enhance: ["Make your voice stand out", "Choose your audio, compare enhancers, and keep your favorite version.", "LOCAL AUDIO"],
         transcribe: ["Turn audio into words", "Transcribe your videos and audio into editable text and subtitles.", "CPU · Whisper"],
-        music: ["Set the mood", "Create background music for your narration and mix it into your next cut.", "CPU · MusicGen"],
-        sfx: ["Give the scene a sound", "Create sound effects and layer them over your narration.", "CPU · AudioLDM"],
         silence: ["Keep the conversation moving", "Shorten long pauses while keeping natural breaths and word spacing.", "LOCAL AUDIO"]
       };
       if (!screens[mode]) return;
@@ -716,7 +624,7 @@
       try { localStorage.setItem('voiceStudio.workspace',mode); } catch {}
       window.dispatchEvent(new CustomEvent('studio:mode',{detail:mode}));
     }
-    for (const mode of ['voice','enhance','transcribe','music','sfx','silence']) document.getElementById('mode-'+mode).addEventListener('click',()=>showMode(mode));
+    for (const mode of ['voice','enhance','transcribe','silence']) document.getElementById('mode-'+mode).addEventListener('click',()=>showMode(mode));
 
 
     drop.addEventListener("click", () => fileInput.click());
@@ -951,10 +859,10 @@
       document.getElementById("source-clone").classList.toggle("on", cloneMode);
       document.getElementById("preset-fields").classList.toggle("hidden", cloneMode);
       document.getElementById("clone-fields").classList.toggle("hidden", !cloneMode);
-      document.getElementById("badge").textContent = cloneMode ? "CPU · XTTS clone" : "CPU · Piper";
+      document.getElementById("badge").textContent = cloneMode ? "CPU · XTTS clone" : "CPU · Kokoro";
       document.getElementById("subhead").textContent = cloneMode
         ? "Uses a short clip of a voice you own. First run downloads a ~2 GB model and is slow on CPU."
-        : "Runs Piper on this PC. Voiceovers stay on this machine.";
+        : "Kokoro voices generated on this PC. Natural pauses are kept by default.";
       updatePresetInfo();
     }
     function updatePresetInfo() {
@@ -964,8 +872,8 @@
         document.getElementById("badge").textContent = "CPU · Kokoro";
         document.getElementById("subhead").textContent = "Kokoro-82M voices, generated locally. Choose the pack finish or keep the raw sound.";
       } else if (!cloneMode && !document.getElementById("layout-voice").classList.contains("hidden")) {
-        document.getElementById("badge").textContent = "CPU · Piper";
-        document.getElementById("subhead").textContent = "Runs Piper on this PC. Voiceovers stay on this machine.";
+        document.getElementById("badge").textContent = "CPU · Kokoro";
+        document.getElementById("subhead").textContent = "Kokoro voices generated on this PC. Natural pauses are kept by default.";
       }
       const sample = document.getElementById("kokoro-sample");
       const sampleURL = kokoro ? voiceSelect.selectedOptions[0]?.dataset.sample : "";
@@ -1016,7 +924,7 @@
         }
         const byLang = {};
         presets.forEach((item) => {
-          const lang = (item.kind === "kokoro" ? "Kokoro · " : "Piper · ") + (item.lang || "Other");
+          const lang = "Kokoro · " + (item.lang || "Other");
           (byLang[lang] = byLang[lang] || []).push(item);
         });
         Object.keys(byLang).forEach((lang) => {
@@ -1028,6 +936,7 @@
         const preferred = readPref(VOICE_PREF_KEY) || payload.default;
         const ids = Array.from(voiceSelect.options).map((option) => option.value);
         if (ids.includes(preferred)) voiceSelect.value = preferred;
+        else if (ids.includes(payload.default)) voiceSelect.value = payload.default;
         else if (ids.includes(payload.default)) voiceSelect.value = payload.default;
         updatePresetInfo();
       } catch {
@@ -1209,272 +1118,8 @@
       download((lastSilence.name || "silence").replace(/\.[^.]+$/, "") + ".srt", lastSilence.srt);
     });
 
-    const musicText = document.getElementById("music-text");
-    const musicCount = document.getElementById("music-count");
-    const musicSeconds = document.getElementById("music-seconds");
-    const musicSecondsVal = document.getElementById("music-seconds-val");
-    const musicStatus = document.getElementById("music-status");
-    const musicRun = document.getElementById("music-run");
-    const musicCues = document.getElementById("music-cues");
-    const sfxText = document.getElementById("sfx-text");
-    const sfxCount = document.getElementById("sfx-count");
-    const sfxSeconds = document.getElementById("sfx-seconds");
-    const sfxSecondsVal = document.getElementById("sfx-seconds-val");
-    const sfxStatus = document.getElementById("sfx-status");
-    const sfxRun = document.getElementById("sfx-run");
-    const sfxCues = document.getElementById("sfx-cues");
-    let lastMusic = null;
-    let lastSfx = null;
-    let cueTimer = null;
-    function escapeText(value) {
-      return String(value || "").replace(/[&<>"]/g, (ch) => ({
-        "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"
-      }[ch]));
-    }
-    function renderCueChips(el, words, emptyText, mood) {
-      const chips = [];
-      if (mood) chips.push('<span class="chip mood">' + escapeText(mood) + "</span>");
-      (words || []).forEach((word) => {
-        chips.push('<span class="chip">' + escapeText(word) + "</span>");
-      });
-      el.innerHTML = chips.length ? chips.join("") : '<span class="muted">' + escapeText(emptyText) + "</span>";
-    }
-    async function refreshCues() {
-      if (location.protocol === "file:") return;
-      const musicValue = musicText.value.trim();
-      const sfxValue = sfxText.value.trim();
-      if (!musicValue && !sfxValue) {
-        renderCueChips(musicCues, [], "Keywords from the script will show here");
-        renderCueChips(sfxCues, [], "Sound words from the script will show here");
-        return;
-      }
-      try {
-        const [musicRes, sfxRes] = await Promise.all([
-          fetch("/api/cues", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: musicValue,
-              music_style: document.getElementById("music-style").value,
-              sfx_style: "auto",
-            }),
-          }),
-          fetch("/api/cues", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              text: sfxValue,
-              music_style: "auto",
-              sfx_style: document.getElementById("sfx-style").value,
-            }),
-          }),
-        ]);
-        const musicPayload = musicRes.ok ? await musicRes.json() : null;
-        const sfxPayload = sfxRes.ok ? await sfxRes.json() : null;
-        renderCueChips(
-          musicCues,
-          musicValue ? (musicPayload?.music?.words || []) : [],
-          musicValue ? "No mood words yet — try spy, jungle, surgery, rain…" : "Keywords from the script will show here",
-          musicValue ? (musicPayload?.music?.mood || "") : ""
-        );
-        renderCueChips(
-          sfxCues,
-          sfxValue ? (sfxPayload?.sfx?.words || []) : [],
-          sfxValue ? "No sound words yet — try rain, footsteps, glass…" : "Sound words from the script will show here",
-          ""
-        );
-      } catch (err) {
-        // Keep the last chips if the analyzer is briefly unavailable.
-      }
-    }
-    function scheduleCues() {
-      clearTimeout(cueTimer);
-      cueTimer = setTimeout(refreshCues, 250);
-    }
-    function updateMusicCount() {
-      const text = musicText.value;
-      const characters = text.length;
-      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-      musicCount.textContent = words + " word" + (words === 1 ? "" : "s") +
-        " · " + characters + " character" + (characters === 1 ? "" : "s");
-      scheduleCues();
-    }
-    musicText.addEventListener("input", updateMusicCount);
-    document.getElementById("music-style").addEventListener("change", scheduleCues);
-    updateMusicCount();
-    musicSeconds.addEventListener("input", () => {
-      musicSecondsVal.textContent = Number(musicSeconds.value) + "s";
-    });
-    function fillMusicFromScript() {
-      const fromVoice = document.getElementById("script").value.trim();
-      const fromTranscript = last?.text || "";
-      musicText.value = fromVoice || fromTranscript;
-      updateMusicCount();
-    }
-    document.getElementById("use-script-music").addEventListener("click", fillMusicFromScript);
-    document.getElementById("goto-music").addEventListener("click", () => {
-      fillMusicFromScript();
-      showMode("music");
-    });
-    document.getElementById("music-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const liveWords = [...musicCues.querySelectorAll(".chip:not(.mood)")].map((el) => el.textContent).filter(Boolean);
-      musicStatus.className = "status";
-      musicStatus.textContent = liveWords.length
-        ? "Generating music from: " + liveWords.join(", ") + "…"
-        : "Generating music on this PC… First run downloads MusicGen and can take several minutes.";
-      musicRun.disabled = true;
-      document.getElementById("download-music").disabled = true;
-      try {
-        if (location.protocol === "file:") {
-          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
-        }
-        const mix = document.getElementById("music-mix").checked;
-        if (mix && !lastVoice?.path) {
-          throw new Error("Generate a voiceover first, then mix music under it.");
-        }
-        const res = await fetch("/api/music", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: musicText.value,
-            style: document.getElementById("music-style").value,
-            seconds: Number(musicSeconds.value),
-            mix_voice: mix ? lastVoice.path : "",
-          }),
-        });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.error || "Music generation failed");
-        lastMusic = payload;
-        renderCueChips(musicCues, payload.cues || [], "No mood words found", payload.mood || "");
-        const cueLine = (payload.cues && payload.cues.length)
-          ? "Using: " + payload.cues.join(", ") + (payload.mood ? " · " + payload.mood : "")
-          : (payload.mood ? "Mood: " + payload.mood : "Preview");
-        document.getElementById("music-meta").textContent =
-          payload.name + " · " + payload.duration.toFixed(1) + "s · " + payload.sample_rate + " Hz" +
-          (payload.mixed ? " · mixed under voiceover" : "");
-        document.getElementById("music-result").innerHTML =
-          '<div class="player-wrap"><strong>' + escapeText(cueLine) + "</strong>" +
-          '<audio controls autoplay src="' + payload.url + "?t=" + Date.now() + '"></audio>' +
-          (payload.prompt ? '<div class="path">' + escapeText(payload.prompt) + "</div>" : "") +
-          '<div class="path">' + escapeText(payload.path) + "</div></div>";
-        document.getElementById("download-music").disabled = false;
-        musicStatus.textContent = payload.mixed
-          ? "Saved a mixed MP3 to the outputs folder."
-          : "Saved background music from those keywords.";
-      } catch (err) {
-        musicStatus.className = "status error";
-        musicStatus.textContent = err.message;
-      } finally {
-        musicRun.disabled = false;
-      }
-    });
-    document.getElementById("download-music").addEventListener("click", () => {
-      if (!lastMusic?.url) return;
-      const a = document.createElement("a");
-      a.href = lastMusic.url;
-      a.download = lastMusic.name || "background.mp3";
-      a.click();
-    });
-
-    function updateSfxCount() {
-      const text = sfxText.value;
-      const characters = text.length;
-      const words = text.trim() ? text.trim().split(/\s+/).length : 0;
-      sfxCount.textContent = words + " word" + (words === 1 ? "" : "s") +
-        " · " + characters + " character" + (characters === 1 ? "" : "s");
-      scheduleCues();
-    }
-    sfxText.addEventListener("input", updateSfxCount);
-    document.getElementById("sfx-style").addEventListener("change", scheduleCues);
-    updateSfxCount();
-    sfxSeconds.addEventListener("input", () => {
-      sfxSecondsVal.textContent = Number(sfxSeconds.value) + "s";
-    });
-    function fillSfxFromScript() {
-      const fromVoice = document.getElementById("script").value.trim();
-      const fromTranscript = last?.text || "";
-      sfxText.value = fromVoice || fromTranscript;
-      updateSfxCount();
-    }
-    document.getElementById("use-script-sfx").addEventListener("click", fillSfxFromScript);
-    document.getElementById("goto-sfx").addEventListener("click", () => {
-      fillSfxFromScript();
-      showMode("sfx");
-    });
-    document.getElementById("sfx-form").addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const liveWords = [...sfxCues.querySelectorAll(".chip")].map((el) => el.textContent).filter(Boolean);
-      sfxStatus.className = "status";
-      sfxStatus.textContent = liveWords.length
-        ? "Generating sound effects from: " + liveWords.join(", ") + "…"
-        : "Generating sound effects on this PC… First run downloads AudioLDM and can take a few minutes.";
-      sfxRun.disabled = true;
-      document.getElementById("download-sfx").disabled = true;
-      try {
-        if (location.protocol === "file:") {
-          throw new Error("Open http://127.0.0.1:7860 in the browser — do not open the HTML file directly.");
-        }
-        const mix = document.getElementById("sfx-mix").checked;
-        if (mix && !lastVoice?.path) {
-          throw new Error("Generate a voiceover first, then layer the effect over it.");
-        }
-        const res = await fetch("/api/sfx", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            text: sfxText.value,
-            style: document.getElementById("sfx-style").value,
-            seconds: Number(sfxSeconds.value),
-            mix_voice: mix ? lastVoice.path : "",
-          }),
-        });
-        const payload = await res.json();
-        if (!res.ok) throw new Error(payload.error || "Sound effect generation failed");
-        lastSfx = payload;
-        renderCueChips(sfxCues, payload.cues || [], "No sound words found");
-        const clips = Array.isArray(payload.clips) && payload.clips.length ? payload.clips : [payload];
-        const players = clips.map((clip, index) => {
-          const title = clip.word || clip.label || ("Clip " + (index + 1));
-          const src = (clip.url || payload.url) + "?t=" + Date.now() + "-" + index;
-          return '<div class="player-wrap"><strong>' + escapeText(title) + "</strong>" +
-            '<audio controls' + (index === 0 && !payload.mixed ? " autoplay" : "") + ' src="' + src + '"></audio>' +
-            (clip.prompt ? '<div class="path">' + escapeText(clip.prompt) + "</div>" : "") +
-            '<div class="path">' + escapeText(clip.path || payload.path) + "</div></div>";
-        });
-        if (payload.mixed) {
-          players.unshift(
-            '<div class="player-wrap"><strong>Mixed over voiceover</strong>' +
-            '<audio controls autoplay src="' + payload.url + "?t=" + Date.now() + '"></audio>' +
-            '<div class="path">' + escapeText(payload.path) + "</div></div>"
-          );
-        }
-        document.getElementById("sfx-meta").textContent =
-          (payload.cues && payload.cues.length ? payload.cues.join(", ") + " · " : "") +
-          payload.name + " · " + payload.duration.toFixed(1) + "s" +
-          (payload.mixed ? " · layered over voiceover" : "");
-        document.getElementById("sfx-result").innerHTML = players.join("");
-        document.getElementById("download-sfx").disabled = false;
-        sfxStatus.textContent = payload.mixed
-          ? "Saved a mixed MP3 plus " + clips.length + " effect clip" + (clips.length === 1 ? "" : "s") + "."
-          : "Saved " + clips.length + " sound effect" + (clips.length === 1 ? "" : "s") + " from those words.";
-      } catch (err) {
-        sfxStatus.className = "status error";
-        sfxStatus.textContent = err.message;
-      } finally {
-        sfxRun.disabled = false;
-      }
-    });
-    document.getElementById("download-sfx").addEventListener("click", () => {
-      if (!lastSfx?.url) return;
-      const a = document.createElement("a");
-      a.href = lastSfx.url;
-      a.download = lastSfx.name || "sfx.mp3";
-      a.click();
-    });
-
     let initialWorkspace='voice';
-    try { const saved=localStorage.getItem('voiceStudio.workspace');if(['voice','enhance','transcribe','music','sfx','silence'].includes(saved))initialWorkspace=saved; } catch {}
+    try { const saved=localStorage.getItem('voiceStudio.workspace');if(['voice','enhance','transcribe','silence'].includes(saved))initialWorkspace=saved; } catch {}
     showMode(initialWorkspace);
   </script>
   <script src="{{ url_for('static', filename='studio.js') }}" defer></script>

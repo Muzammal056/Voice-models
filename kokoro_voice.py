@@ -6,12 +6,8 @@ import importlib.util,json,math,os,shutil,subprocess,sys,tempfile,threading,uuid
 from voice import SpeakResult,MAX_SCRIPT_CHARS,make_audio_stem,wav_duration,export_voiceover
 ROOT=Path(__file__).resolve().parent
 KOKORO_DEFAULT='kokoro:am_michael'
-KOKORO_VOICES=(
- ('am_michael','Michael — US male narrator'),('am_adam','Adam — US male'),
- ('am_echo','Echo — US male'),('am_eric','Eric — US male'),('am_fenrir','Fenrir — US male'),
- ('am_liam','Liam — US male'),('am_onyx','Onyx — US male'),('am_puck','Puck — US male'),
- ('af_heart','Heart — US female'),('af_bella','Bella — US female'),('af_sarah','Sarah — US female'),('af_nicole','Nicole — US female'),
-)
+KOKORO_VOICES=(('am_michael','Michael — US male narrator'),('am_adam','Adam — US male'),)
+
 IDS={voice for voice,_ in KOKORO_VOICES}
 
 def configuration():
@@ -38,7 +34,7 @@ class KokoroResult(SpeakResult):
 
 class KokoroSpeaker:
     def __init__(self):self._lock=threading.Lock()
-    def speak(self,text,voice_id=KOKORO_DEFAULT,speed=1.0,out_dir=None,remove_silence=True,polish=True):
+    def speak(self,text,voice_id=KOKORO_DEFAULT,speed=1.0,out_dir=None,remove_silence=False,polish=True):
         script=str(text).strip();voice=voice_id.removeprefix('kokoro:')
         if voice not in IDS:raise ValueError('Choose a listed Kokoro voice.')
         if not script or len(script)>MAX_SCRIPT_CHARS:raise ValueError(f'Enter narration of 1–{MAX_SCRIPT_CHARS} characters.')

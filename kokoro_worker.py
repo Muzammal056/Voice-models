@@ -19,7 +19,9 @@ def main():
     from kokoro import KPipeline
     voice=request['voice'];pipeline=KPipeline(lang_code=voice[0],repo_id='hexgrad/Kokoro-82M',device='cpu')
     pieces=[];pause=np.zeros(3600,dtype=np.float32)
-    for _,_,audio in pipeline(request['text'],voice=voice,speed=request['speed'],split_pattern=r'\n+'):
+    from kokoro_text import speech_paragraphs
+    narration='\n\n'.join(speech_paragraphs(request['text']))
+    for _,_,audio in pipeline(narration,voice=voice,speed=request['speed'],split_pattern=r'\n\s*\n'):
         if audio is None:continue
         data=audio.detach().cpu().numpy() if hasattr(audio,'detach') else np.asarray(audio,dtype=np.float32)
         data=np.asarray(data,dtype=np.float32).reshape(-1)
